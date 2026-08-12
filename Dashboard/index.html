@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>Agile Velocity Dashboard — Team Sprint Control Center</title>
+<title>Agile Team Delivery Dashboard - Sprint Control Center</title>
 <style>
 :root{--bg:#f3f5f9;--card:#fff;--text:#172033;--muted:#697386;--line:#e2e7ef;--blue:#365cff;--green:#159447;--amber:#c87500;--red:#d52d2d;--dark:#111827;--shadow:0 3px 14px rgba(17,24,39,.06)}
 *{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -57,18 +57,18 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 .traceBody{padding-left:16px;margin-top:8px}.traceLabel{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .traceTask{border-left:2px solid var(--line);padding:6px 0 6px 10px;margin:6px 0}.traceTaskTop{display:flex;justify-content:space-between;align-items:center;gap:8px}.traceTask .progress{margin-top:5px}
 @media(max-width:700px){.currentWork{grid-template-columns:1fr}.currentWork .workItem:nth-child(n+4){display:none}}
-@media print{.top,footer,.actions,.notice,.noPrint{display:none!important}.tab{display:none!important}.tab.active{display:block!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.currentWork{grid-template-columns:repeat(2,1fr)}}
+@media print{.top,.nav,footer,.actions,.notice,.noPrint{display:none!important}.tab{display:none!important}.tab.active{display:block!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.currentWork{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <header class="top">
-<div><h1>Agile Velocity Dashboard</h1><p>Team Sprint Control Center</p></div>
+<div><h1>Agile Team Delivery Dashboard</h1><p>Team Sprint Control Center</p></div>
 <div class="topRight"><span class="saveDot" id="saveState">● Saved locally</span></div>
 </header>
 <nav class="nav" id="topNav"></nav>
 <main>
 <section id="dashboard" class="tab active">
-<div class="notice">Your data is saved automatically in this browser. Use <b>Export</b> to move a backup between phone and PC.</div>
+<div class="notice">Loads automatically from <b>Data/agile_dashboard_data.json</b> (relative to this Dashboard folder) if present, otherwise from this browser's local storage. Edits here are saved locally only — <b>Export</b> and replace agile_dashboard_data.json in the Data folder to publish changes.</div>
 
 <!-- 1. Sprint Overview -->
 <div class="card">
@@ -192,20 +192,20 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 
 <section id="data" class="tab">
 <div class="card"><h2>Data Backup & Transfer</h2><div class="desc">Use Export on your phone, then Import the downloaded file on your PC. This is the Stage 1 way to move data between devices.</div>
-<div class="actions"><button class="btn primary" onclick="exportData()">⬇ Export JSON</button><button class="btn secondary" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
-<div class="notice" style="margin-top:12px">Export includes sprint setup, tasks/PBIs, daily updates, and historical velocity.</div></div>
+<div class="actions"><button class="btn primary" onclick="exportData()">⬇ Export JSON</button><button class="btn secondary" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button><button class="btn secondary" onclick="reloadFromJson()">🔄 Reload data</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
+<div class="notice" style="margin-top:12px">Export includes sprint setup, tasks/PBIs, daily updates, and historical velocity. Export downloads as <b>agile_dashboard_data.json</b> — commit it into the <b>Data</b> directory (sibling of Dashboard) for GitHub Pages to pick it up automatically.</div></div>
 <div class="card"><h2>CSV Export</h2><div class="desc">Useful for opening data in Excel.</div><div class="actions"><button class="btn secondary" onclick="exportPbisCsv()">Tasks CSV</button><button class="btn secondary" onclick="exportHistoryCsv()">Velocity CSV</button></div></div>
 <div class="card"><h2>Reset</h2><div class="desc">This permanently clears all locally stored dashboard data.</div><button class="btn danger" onclick="resetAll()">Reset Everything</button></div>
 </section>
 </main>
-<div class="creditWrap"><div class="credit"><div>Agile Sprint Dashboard — Team Delivery & Sprint Control Center</div><div style="margin-top:3px">Designed, Developed &amp; Created by © Dixit Bharatkumar Patel. All rights reserved.</div></div></div>
+<div class="creditWrap"><div class="credit"><div>Agile Team Delivery Dashboard - Sprint Control Center</div><div style="margin-top:3px">Created by Dixit Bharatkumar Patel · LTTS</div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 const KEY="agileVelocityStage1";
 const navItems=[["dashboard","📊","Dashboard"],["sprint","⚙️","Sprint"],["pbi","📝","PBIs"],["daily","🔄","Daily"],["history","📈","History"],["data","💾","Data"]];
 const empty=()=>({sprint:{name:"Sprint 1",start:"",end:"",members:11,hours:8,holiday:0,pto:0,other:0,goal:""},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]});
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||empty(), charts={};
+let data=empty(), charts={}, dataSource="local";
 function normalizeData(){
   data.sprint=data.sprint||empty().sprint;
   data.pbis=Array.isArray(data.pbis)?data.pbis:[];
@@ -491,7 +491,7 @@ function deleteHistory(i){data.history.splice(i,1);save();renderHistory();render
 function clearHistory(){if(confirm("Delete all history?")){data.history=[];save();renderHistory();renderDashboard()}}
 
 function downloadBlob(name,text,type){let a=document.createElement("a"),blob=new Blob([text],{type}),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
-function exportData(){downloadBlob("agile-velocity-backup.json",JSON.stringify(data,null,2),"application/json")}
+function exportData(){downloadBlob("agile_dashboard_data.json",JSON.stringify(data,null,2),"application/json")}
 importFile.onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.sprint||!Array.isArray(x.pbis))throw Error();data=x;normalizeData();save();renderAll();alert("Data imported successfully.");}catch(err){alert("Invalid dashboard backup file.")}};r.readAsText(f);e.target.value=""}
 function csv(rows){return rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n")}
 function exportPbisCsv(){downloadBlob("pbis.csv",csv([["Task / PBI","Description","Task","Goal / Purpose","Owner","Sprint Feature","Release","Effort %","Confidence","Product Document","Sandbox Document","Story Points","Status","Priority","Progress","Due Date","Notes"],...data.pbis.map(p=>[p.id,p.desc,p.task,p.goal,p.owner,p.feature,p.release,p.effort,p.confidence,p.productDoc,p.sandboxDoc,p.sp,p.status,p.priority,p.progress,p.due,p.notes])]),"text/csv")}
@@ -500,7 +500,23 @@ function resetAll(){if(confirm("This will permanently delete all dashboard data 
 function loadDemo(){data={sprint:{name:"Sprint 24",start:"2026-08-03",end:"2026-08-14",members:11,hours:8,holiday:0,pto:32,other:56,goal:"Deliver the highest-priority product increments predictably."},pbis:[
 {id:"PBI-1042",desc:"Authentication API",owner:"A. Patel",sp:8,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1047",desc:"Dashboard UI",owner:"J. Kim",sp:5,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1051",desc:"Reporting service",owner:"M. Chen",sp:13,status:"In Progress",priority:"High",progress:65,productDoc:"PRD-1051",sandboxDoc:"SBX-1051"},{id:"PBI-1054",desc:"Data export",owner:"R. Singh",sp:8,status:"In Progress",priority:"Medium",progress:45,productDoc:"PRD-1054",sandboxDoc:"SBX-1054"},{id:"PBI-1058",desc:"Search enhancement",owner:"L. Garcia",sp:3,status:"In Progress",priority:"Medium",progress:70,productDoc:"PRD-1058",sandboxDoc:"SBX-1058"},{id:"PBI-1061",desc:"QA automation",owner:"S. Brown",sp:5,status:"Review",priority:"Medium",progress:85,productDoc:"PRD-1061",sandboxDoc:"SBX-1061"},{id:"PBI-1064",desc:"External integration",owner:"K. Wilson",sp:8,status:"Blocked",priority:"High",progress:30,productDoc:"PRD-1064",sandboxDoc:"SBX-1064",notes:"Dependency pending"},{id:"PBI-1068",desc:"Performance tuning",owner:"D. Nguyen",sp:3,status:"In Progress",priority:"Low",progress:55,productDoc:"PRD-1068",sandboxDoc:"SBX-1068"},{id:"PBI-1070",desc:"Audit logging",owner:"T. Davis",sp:5,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1073",desc:"UI accessibility",owner:"N. Shah",sp:3,status:"Done",priority:"Medium",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"}],daily:[{date:"2026-08-03",remaining:61},{date:"2026-08-04",remaining:56},{date:"2026-08-05",remaining:50},{date:"2026-08-06",remaining:43},{date:"2026-08-07",remaining:38}],history:[{name:"Sprint 19",commit:60,done:51,pbis:18},{name:"Sprint 20",commit:62,done:58,pbis:21},{name:"Sprint 21",commit:60,done:55,pbis:20},{name:"Sprint 22",commit:65,done:62,pbis:24},{name:"Sprint 23",commit:58,done:53,pbis:19}],releases:[{version:"V-1.2",date:"2026-07-17",total:42,done:42},{version:"V-1.3",date:"2026-08-14",total:38,done:24}],sprintPlan:[{activity:"Complete reporting and validation activities",feature:"Reporting",week:"Week of Aug 3",status:"In Progress",actual:78,carry:"Yes",notes:"Carry forward remaining validation work"},{activity:"Ship authentication API",feature:"Authentication",week:"Week of Aug 3",status:"Completed",actual:100,carry:"No",notes:"Delivered ahead of schedule"},{activity:"External integration groundwork",feature:"Integration",week:"Week of Aug 3",status:"Blocked",actual:30,carry:"Yes",notes:"Waiting on vendor dependency"}]};const featureMap={"PBI-1042":"Authentication","PBI-1047":"Dashboard","PBI-1070":"Authentication","PBI-1073":"Accessibility","PBI-1051":"Reporting","PBI-1054":"Reporting","PBI-1058":"Search","PBI-1061":"Reporting","PBI-1064":"Integration","PBI-1068":"Dashboard"};data.pbis.forEach(p=>{p.release="V-1.3";p.feature=featureMap[p.id]||"";p.effort=p.progress;p.confidence=p.status==="Blocked"?"Low":(p.status==="Done"?"High":"Medium")});normalizeData();save();renderAll();alert("Demo data loaded.");}
 function renderAll(){renderSprint();renderPbis();renderDaily();renderHistory();renderDashboard()}
-buildNav();renderAll();
+async function loadInitial(){
+ try{
+  const res=await fetch("../Data/agile_dashboard_data.json",{cache:"no-store"});
+  if(res.ok){
+   const json=await res.json();
+   if(json&&json.sprint&&Array.isArray(json.pbis)){data=json;dataSource="json";normalizeData();save();return;}
+  }
+ }catch(e){}
+ data=JSON.parse(localStorage.getItem(KEY)||"null")||empty();dataSource="local";normalizeData();
+}
+function reloadFromJson(){
+ fetch("../Data/agile_dashboard_data.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(json=>{
+  if(!json||!json.sprint||!Array.isArray(json.pbis))throw Error();
+  data=json;dataSource="json";normalizeData();save();renderAll();alert("Reloaded from data.json.");
+ }).catch(()=>alert("No agile_dashboard_data.json found in ../Data, or it's invalid."));
+}
+buildNav();loadInitial().then(()=>{renderAll();saveState.textContent=dataSource==="json"?"● Loaded from agile_dashboard_data.json":"● Saved locally";});
 </script>
 </body>
 </html>
