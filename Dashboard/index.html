@@ -68,7 +68,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <nav class="nav" id="topNav"></nav>
 <main>
 <section id="dashboard" class="tab active">
-<div class="notice">Loads automatically from <b>Data/agile_dashboard_data.json</b> (relative to this Dashboard folder) if present, otherwise from this browser's local storage. Edits here are saved locally only — <b>Export</b> and replace agile_dashboard_data.json in the Data folder to publish changes.</div>
+<div class="notice">Loads automatically from <b>data/agile_dashboard_data.json</b> (relative to this dashboard folder) if present, otherwise from this browser's local storage. Edits here are saved locally only — <b>Export</b> and replace agile_dashboard_data.json in the data folder to publish changes.</div>
 
 <!-- 1. Sprint Overview -->
 <div class="card">
@@ -193,7 +193,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <section id="data" class="tab">
 <div class="card"><h2>Data Backup & Transfer</h2><div class="desc">Use Export on your phone, then Import the downloaded file on your PC. This is the Stage 1 way to move data between devices.</div>
 <div class="actions"><button class="btn primary" onclick="exportData()">⬇ Export JSON</button><button class="btn secondary" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button><button class="btn secondary" onclick="reloadFromJson()">🔄 Reload data</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
-<div class="notice" style="margin-top:12px">Export includes sprint setup, tasks/PBIs, daily updates, and historical velocity. Export downloads as <b>agile_dashboard_data.json</b> — commit it into the <b>Data</b> directory (sibling of Dashboard) for GitHub Pages to pick it up automatically.</div></div>
+<div class="notice" style="margin-top:12px">Export includes sprint setup, tasks/PBIs, daily updates, and historical velocity. Export downloads as <b>agile_dashboard_data.json</b> — commit it into the <b>data</b> directory (sibling of dashboard) for GitHub Pages to pick it up automatically.</div></div>
 <div class="card"><h2>CSV Export</h2><div class="desc">Useful for opening data in Excel.</div><div class="actions"><button class="btn secondary" onclick="exportPbisCsv()">Tasks CSV</button><button class="btn secondary" onclick="exportHistoryCsv()">Velocity CSV</button></div></div>
 <div class="card"><h2>Reset</h2><div class="desc">This permanently clears all locally stored dashboard data.</div><button class="btn danger" onclick="resetAll()">Reset Everything</button></div>
 </section>
@@ -502,7 +502,7 @@ function loadDemo(){data={sprint:{name:"Sprint 24",start:"2026-08-03",end:"2026-
 function renderAll(){renderSprint();renderPbis();renderDaily();renderHistory();renderDashboard()}
 async function loadInitial(){
  try{
-  const res=await fetch("../Data/agile_dashboard_data.json",{cache:"no-store"});
+  const res=await fetch("../data/agile_dashboard_data.json",{cache:"no-store"});
   if(res.ok){
    const json=await res.json();
    if(json&&json.sprint&&Array.isArray(json.pbis)){data=json;dataSource="json";normalizeData();save();return;}
@@ -511,10 +511,10 @@ async function loadInitial(){
  data=JSON.parse(localStorage.getItem(KEY)||"null")||empty();dataSource="local";normalizeData();
 }
 function reloadFromJson(){
- fetch("../Data/agile_dashboard_data.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(json=>{
+ fetch("../data/agile_dashboard_data.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(json=>{
   if(!json||!json.sprint||!Array.isArray(json.pbis))throw Error();
   data=json;dataSource="json";normalizeData();save();renderAll();alert("Reloaded from data.json.");
- }).catch(()=>alert("No agile_dashboard_data.json found in ../Data, or it's invalid."));
+ }).catch(()=>alert("No agile_dashboard_data.json found in ../data, or it's invalid."));
 }
 buildNav();loadInitial().then(()=>{renderAll();saveState.textContent=dataSource==="json"?"● Loaded from agile_dashboard_data.json":"● Saved locally";});
 </script>

@@ -38,7 +38,7 @@ canvas{max-width:100%}
 <main id="app">
 <div class="emptyState" id="loadingMsg">Loading sprint data…</div>
 </main>
-<div class="creditWrap"><div class="credit">Created by Dixit Bharatkumar Patel · LTTS</div></div>
+<div class="creditWrap"><div class="credit"><div>Agile Team Delivery Dashboard - Sprint Control Center</div><div style="margin-top:3px">Created by Dixit Bharatkumar Patel · LTTS</div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
@@ -169,7 +169,7 @@ function drawCharts(){
  charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:h.map(x=>x.name),datasets:[{label:"PBIs Completed",data:h.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
 }
 
-fetch("../Data/agile_dashboard_data.json",{cache:"no-store"})
+fetch("../data/agile_dashboard_data.json",{cache:"no-store"})
  .then(r=>r.ok?r.json():Promise.reject())
  .then(json=>{
   if(!json||!json.sprint||!Array.isArray(json.pbis))throw Error();
