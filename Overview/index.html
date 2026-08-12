@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Sprint Overview — Client Summary</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--text:#172033;--muted:#697386;--line:#e2e7ef;--blue:#365cff;--green:#159447;--amber:#c87500;--red:#d52d2d;--dark:#111827;--shadow:0 3px 14px rgba(17,24,39,.06)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.top{background:var(--dark);color:white;padding:18px max(16px,calc((100vw - 1200px)/2))}
+.top h1{font-size:22px;margin:0}.top p{font-size:12px;color:#bdc5d3;margin:4px 0 0}
+main{max-width:1200px;margin:auto;padding:18px 16px 30px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:13px}
+.label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:28px;font-weight:850;margin-top:5px}.sub{font-size:12px;color:var(--muted);margin-top:3px}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+h2{font-size:16px;margin:0 0 4px}.desc{font-size:12px;color:var(--muted);margin-bottom:13px}.chartBox{height:280px;position:relative}
+canvas{max-width:100%}
+.tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse;font-size:12px;min-width:640px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:10px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.progress{height:7px;background:#e9edf3;border-radius:99px;overflow:hidden;min-width:85px}.bar{height:100%;background:var(--blue);border-radius:99px}.pill{display:inline-block;padding:4px 7px;border-radius:99px;background:#eef0f4;font-size:10px;font-weight:750}
+.metricRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f7f8fb;border-radius:9px;padding:12px}.metric b{font-size:19px;display:block;margin-top:3px}
+.mobileCards{display:none}
+.emptyState{padding:16px;border:1px dashed #cbd3df;border-radius:10px;color:var(--muted);font-size:12px}
+.moreTasks{background:#edf1ff;color:#2947c8}
+.creditWrap{border-top:1px solid var(--line);margin-top:6px}
+.credit{max-width:1200px;margin:0 auto;padding:12px 16px 18px;text-align:center;color:#b7bec9;font-size:10px}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+ body{font-size:14px}.top{padding:14px 14px 12px}.top h1{font-size:19px}.top p{font-size:11px}
+ .grid4{grid-template-columns:repeat(2,1fr);gap:8px}.grid4 .card{padding:12px;margin-bottom:8px}.value{font-size:23px}main{padding:12px 10px 20px}.card{padding:13px;border-radius:10px}
+ .chartBox{height:245px}.metricRow{grid-template-columns:1fr 1fr 1fr;gap:6px}.metric{padding:9px}.metric b{font-size:16px}
+ .tableWrap{display:none}.mobileCards{display:block}.mobileItem{border:1px solid var(--line);border-radius:9px;padding:11px;margin:8px 0}.mobileItemTop{display:flex;justify-content:space-between;gap:8px}.mobileGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.mobileGrid small{display:block;color:var(--muted);font-size:10px}.mobileGrid b{font-size:12px}
+}
+</style>
+</head>
+<body>
+<header class="top"><h1>Sprint Overview</h1><p id="topMeta">Client Summary</p></header>
+<main id="app">
+<div class="emptyState" id="loadingMsg">Loading sprint data…</div>
+</main>
+<div class="creditWrap"><div class="credit">Created by Dixit Bharatkumar Patel · LTTS</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+let data=null, charts={};
+
+function commit(){return data.pbis.reduce((a,p)=>a+Number(p.sp||0),0)}
+function doneSP(){return data.pbis.filter(p=>p.status==="Done").reduce((a,p)=>a+Number(p.sp||0),0)}
+function avgVelocity(){let a=(data.history||[]).map(x=>+x.done);if(doneSP())a.push(doneSP());a=a.slice(-6);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0}
+function forecast(){return Math.min(commit(),Math.max(doneSP(),avgVelocity()))}
+function sprintDays(){if(!data.sprint.start||!data.sprint.end)return 10;return Math.max(1,Math.floor((new Date(data.sprint.end)-new Date(data.sprint.start))/86400000)+1)}
+
+function versionSummary(){
+ const map={};
+ data.pbis.forEach(p=>{const v=(p.release&&p.release.trim())?p.release.trim():"Unassigned";map[v]??={version:v,total:0,done:0};map[v].total++;if(p.status==="Done")map[v].done++});
+ return Object.values(map).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function featureSummary(){
+ const map={};
+ data.pbis.forEach(p=>{const f=(p.feature&&p.feature.trim())?p.feature.trim():"Unassigned";map[f]??={feature:f,tasks:[]};map[f].tasks.push(p)});
+ return Object.values(map).map(m=>{
+  const total=m.tasks.length, done=m.tasks.filter(p=>p.status==="Done").length, blocked=m.tasks.some(p=>p.status==="Blocked"), started=m.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+  let status="Not Started";
+  if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+  return {feature:m.feature,total,done,remaining:total-done,pct:total?Math.round(done/total*100):0,status};
+ }).sort((a,b)=>a.feature==="Unassigned"?1:b.feature==="Unassigned"?-1:a.feature.localeCompare(b.feature));
+}
+function teamCurrentWorkData(){
+ const activeStatuses=["In Progress","Review"];
+ const prioRank={High:0,Medium:1,Low:2};
+ const map={};
+ data.pbis.filter(p=>activeStatuses.includes(p.status)).forEach(p=>{
+  const owner=(p.owner&&p.owner.trim())||"Unassigned";
+  map[owner]??={owner,tasks:[]};
+  map[owner].tasks.push(p);
+ });
+ Object.values(map).forEach(m=>m.tasks.sort((a,b)=>(prioRank[a.priority]??9)-(prioRank[b.priority]??9)||b.progress-a.progress));
+ return Object.values(map).sort((a,b)=>a.owner.localeCompare(b.owner));
+}
+
+function renderSprintOverview(){
+ const c=commit(),d=doneSP(),pct=c?Math.round(d/c*100):0;
+ topMeta.textContent=(data.sprint.name||"Sprint")+" · "+(data.sprint.start||"No start")+" → "+(data.sprint.end||"No end");
+ return `<div class="card"><h2>Sprint Overview</h2>
+ <div class="metricRow"><div class="metric"><span class="label">Sprint</span><b>${data.sprint.name||"Untitled"}</b></div><div class="metric"><span class="label">Overall Progress</span><b>${pct}%</b></div><div class="metric"><span class="label">Commitment</span><b>${c} SP</b></div></div>
+ <div class="progress" style="margin-top:10px"><div class="bar" style="width:${pct}%"></div></div>
+ <p style="margin-top:10px">${data.sprint.goal||"No sprint goal entered."}</p></div>`;
+}
+function renderVersionProgress(){
+ const rows=versionSummary();
+ if(!rows.length)return `<div class="card"><h2>Software Version / Release Progress</h2><div class="emptyState">No versions yet.</div></div>`;
+ return `<div class="card"><h2>Software Version / Release Progress</h2>
+ <div class="tableWrap"><table><thead><tr><th>Version</th><th>Total Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th></tr></thead><tbody>${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<tr><td><b>${r.version}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.total-r.done}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${pct}%"></div></div>${pct}%</div></td></tr>`}).join("")}</tbody></table></div>
+ <div class="mobileCards">${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<div class="mobileItem"><div class="mobileItemTop"><b>${r.version}</b><span class="pill">${pct}%</span></div><div class="mobileGrid"><div><small>Total</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.total-r.done}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${pct}%"></div></div></div>`}).join("")}</div></div>`;
+}
+function renderFeatureTracking(){
+ const rows=featureSummary();
+ const cls=s=>s==="Completed"?"good":s==="Blocked"?"bad":s==="In Progress"?"warn":"";
+ const table=!rows.length?`<div class="emptyState">No features yet.</div>`:`<div class="tableWrap"><table><thead><tr><th>Sprint Feature</th><th>Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th><th>Status</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r.feature}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.remaining}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.pct}%"></div></div>${r.pct}%</div></td><td><span class="pill ${cls(r.status)}">${r.status}</span></td></tr>`).join("")}</tbody></table></div>
+ <div class="mobileCards">${rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.feature}</b><span class="pill ${cls(r.status)}">${r.status}</span></div><div class="mobileGrid"><div><small>Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.remaining}</b></div><div><small>Progress</small><b>${r.pct}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.pct}%"></div></div></div>`).join("")}</div>`;
+ return `<div class="card"><h2>Features Selected for This Sprint</h2><div class="desc">Sprint Feature → PBI/Task rollup.</div>
+ <div class="grid2">
+ <div>${table}</div>
+ <div><div class="label" style="margin-bottom:6px">Complete List of Features</div><div class="chartBox" style="height:200px"><canvas id="featureStatusDonut"></canvas></div></div>
+ </div></div>`;
+}
+function renderTeamCurrentWork(){
+ const groups=teamCurrentWorkData();
+ if(!groups.length)return `<div class="card"><h2>What the Team Is Working On Right Now</h2><div class="emptyState">No active work right now.</div></div>`;
+ const table=groups.map(g=>{
+  const p=g.tasks[0], extra=g.tasks.length-1;
+  return `<tr><td><b>${g.owner}</b>${extra?` <span class="pill moreTasks">+${extra} more active</span>`:""}</td><td><b>${p.id}</b></td><td>${p.desc}</td><td><span class="pill">${p.feature||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.status}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</div></td></tr>`;
+ }).join("");
+ const cards=groups.map(g=>{
+  const p=g.tasks[0], extra=g.tasks.length-1;
+  return `<div class="mobileItem"><div class="mobileItemTop"><b>${g.owner}</b>${extra?`<span class="pill moreTasks">+${extra} more</span>`:""}</div><div style="margin-top:4px"><b>${p.id}</b> — ${p.desc}</div><div class="mobileGrid"><div><small>Feature</small><b>${p.feature||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Status</small><b>${p.status}</b></div><div><small>Progress</small><b>${p.progress}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div></div>`;
+ }).join("");
+ return `<div class="card"><h2>What the Team Is Working On Right Now</h2><div class="desc">One row per person — current task, feature, version, and progress.</div>
+ <div class="tableWrap"><table><thead><tr><th>Team Member</th><th>PBI/Task ID</th><th>Task</th><th>Feature</th><th>Version</th><th>Status</th><th>Progress</th></tr></thead><tbody>${table}</tbody></table></div>
+ <div class="mobileCards">${cards}</div></div>`;
+}
+function renderMoreDetail(){
+ const c=commit(),d=doneSP(),v=avgVelocity(),f=forecast();
+ return `<div class="toolbar" style="margin:22px 0 8px"><h2 style="color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em">More Detail</h2></div>
+ <div class="grid4">
+ <div class="card"><div class="label">Commitment</div><div class="value">${c} SP</div><div class="sub">${data.pbis.length} PBIs</div></div>
+ <div class="card"><div class="label">Completed</div><div class="value">${d} SP</div><div class="sub">${c?Math.round(d/c*100):0}% of commitment</div></div>
+ <div class="card"><div class="label">Velocity</div><div class="value">${v} SP</div><div class="sub">Rolling average</div></div>
+ <div class="card"><div class="label">Forecast</div><div class="value">${f} SP</div><div class="sub">${c?(f>=c?"Likely to meet commitment":(c-f)+" SP currently at risk"):"No commitment"}</div></div>
+ </div>
+ <div class="card"><h2>Forecast Health</h2><div class="metricRow"><div class="metric"><span class="label">Commit</span><b>${c}</b></div><div class="metric"><span class="label">Forecast</span><b>${f}</b></div><div class="metric"><span class="label">Rate</span><b>${c?Math.round(f/c*100):0}%</b></div></div><p class="${f>=c?'good':'warn'}">${f>=c?'Healthy forecast':(c-f)+' SP may carry over'}</p></div>`;
+}
+
+function render(){
+ loadingMsg.remove();
+ app.innerHTML=
+  renderSprintOverview()+
+  renderVersionProgress()+
+  renderFeatureTracking()+
+  renderTeamCurrentWork()+
+  `<div class="grid2">
+   <div class="card"><h2>Sprint Burndown</h2><div class="desc">Daily remaining story points</div><div class="chartBox"><canvas id="burndown"></canvas></div></div>
+   <div class="card"><h2>Features Burndown (#)</h2><div class="desc">Daily remaining feature count</div><div class="chartBox"><canvas id="featureBurndown"></canvas></div></div>
+  </div>
+  <div class="grid2">
+   <div class="card"><h2>Velocity Trend</h2><div class="desc">Planned vs completed story points, with velocity %</div><div class="chartBox"><canvas id="velocityChart"></canvas></div></div>
+   <div class="card"><h2>PBI Flow</h2><div class="desc">Current sprint distribution</div><div class="chartBox"><canvas id="flow"></canvas></div></div>
+  </div>`+
+  renderMoreDetail()+
+  `<div class="card"><h2>Completion Trend</h2><div class="desc">PBIs completed per sprint</div><div class="chartBox"><canvas id="throughput"></canvas></div></div>`;
+ drawCharts();
+}
+
+function drawCharts(){
+ Object.values(charts).forEach(c=>c&&c.destroy());
+ const n=sprintDays(),c=commit(),dates=(data.daily||[]).map(x=>x.date),remaining=(data.daily||[]).map(x=>x.remaining),
+  ideal=Array.from({length:Math.max(n,dates.length,2)},(_,i)=>Math.max(0,c-(c*i/(Math.max(n,dates.length,2)-1))));
+ charts.b=new Chart(document.getElementById("burndown"),{type:"line",data:{labels:dates.length?dates:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}});
+ const featDates=(data.daily||[]).filter(x=>x.featuresRemaining!==null&&x.featuresRemaining!==undefined);
+ charts.fb=new Chart(document.getElementById("featureBurndown"),{type:"line",data:{labels:featDates.map(x=>x.date),datasets:[{label:"Features Remaining",data:featDates.map(x=>x.featuresRemaining),tension:.2,borderColor:"#c87500",backgroundColor:"#c8750022",fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+ const sts=["Not Started","In Progress","Review","Done","Blocked"],vals=sts.map(s=>data.pbis.filter(p=>p.status===s).length);
+ charts.f=new Chart(document.getElementById("flow"),{type:"doughnut",data:{labels:sts,datasets:[{data:vals}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+ const featRows=featureSummary(),fLabels=["Not Started","In Progress","Completed","Blocked"],fVals=fLabels.map(s=>featRows.filter(r=>r.status===s).length);
+ charts.fd=new Chart(document.getElementById("featureStatusDonut"),{type:"doughnut",data:{labels:fLabels,datasets:[{data:fVals,backgroundColor:["#9aa4b2","#365cff","#159447","#d52d2d"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}}}}});
+ let h=(data.history||[]).slice(-6),labs=h.map(x=>x.name),planned=h.map(x=>x.commit),completed=h.map(x=>x.done);
+ if(data.pbis.length){labs.push(data.sprint.name);planned.push(c);completed.push(doneSP())}
+ const pctLine=planned.map((p,i)=>p?Math.round(completed[i]/p*100):0);
+ charts.v=new Chart(document.getElementById("velocityChart"),{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+ charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:h.map(x=>x.name),datasets:[{label:"PBIs Completed",data:h.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+}
+
+fetch("../Data/agile_dashboard_data.json",{cache:"no-store"})
+ .then(r=>r.ok?r.json():Promise.reject())
+ .then(json=>{
+  if(!json||!json.sprint||!Array.isArray(json.pbis))throw Error();
+  data=json; data.daily=data.daily||[]; data.history=data.history||[];
+  render();
+ })
+ .catch(()=>{loadingMsg.textContent="No sprint data available right now."});
+</script>
+</body>
+</html>
