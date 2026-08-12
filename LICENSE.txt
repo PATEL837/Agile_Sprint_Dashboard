@@ -1,0 +1,52 @@
+ALL RIGHTS RESERVED
+
+Copyright (c) 2026 Dixit Bharatkumar Patel. All rights reserved.
+
+This repository and all of its contents — including but not limited to source
+code, HTML, CSS, JavaScript, JSON data structures, documentation, design,
+layout, graphics, text, and any other files contained herein (the "Software")
+— are the exclusive property of Dixit Bharatkumar Patel ("the Owner").
+
+NO LICENSE IS GRANTED. Making this repository publicly viewable on GitHub
+does NOT constitute permission to use it. Unless you have received prior
+express written permission from the Owner, you MAY NOT:
+
+  1. Use the Software, in whole or in part, for any purpose, including
+     personal, educational, non-commercial, or commercial use.
+  2. Copy, reproduce, or duplicate the Software or any portion of it.
+  3. Modify, adapt, translate, or create derivative works based on the
+     Software.
+  4. Distribute, publish, sublicense, sell, rent, lease, or otherwise make
+     the Software available to any third party, in original or modified
+     form.
+  5. Reverse engineer, decompile, or disassemble the Software.
+  6. Host, mirror, fork, or redeploy the Software (or any derivative of it)
+     on any other repository, website, server, or platform.
+  7. Remove, alter, or obscure any copyright, attribution, or proprietary
+     notices contained in the Software.
+  8. Use the Owner's name, the project name, or any associated branding to
+     endorse or promote any product or work without prior written consent.
+
+PERMITTED USE
+Viewing the source code through GitHub's standard interface, as allowed by
+GitHub's own Terms of Service, is permitted. No other use is authorized.
+Any request for permission (licensing, collaboration, contribution, or
+otherwise) must be submitted to and approved in writing by the Owner before
+any use, copying, or distribution takes place.
+
+NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+OWNER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+ENFORCEMENT
+Unauthorized use, copying, modification, or distribution of this Software is
+a violation of applicable copyright law and may result in civil and/or
+criminal penalties. The Owner reserves all rights not expressly granted
+herein, and reserves the right to pursue legal action against any
+infringement.
+
+For permission requests or licensing inquiries, contact the Owner directly.
