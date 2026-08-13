@@ -51,12 +51,6 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 }
 
 .currentWork{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.workItem{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fbfcff}.workItem h3{font-size:13px;margin:0 0 5px}.workItem p{font-size:11px;color:var(--muted);margin:0 0 9px}.workMeta{display:flex;gap:6px;flex-wrap:wrap}.doc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;background:#f0f3f8;padding:4px 6px;border-radius:6px}.emptyState{padding:16px;border:1px dashed #cbd3df;border-radius:10px;color:var(--muted);font-size:12px}.printBtn{background:#111827;color:#fff}.miniTable table{min-width:900px}.statusDot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:#9aa4b2}.statusDot.active{background:var(--blue)}.statusDot.done{background:var(--green)}.statusDot.blocked{background:var(--red)}
-.winsList{display:flex;flex-direction:column}
-.winItem{display:flex;align-items:flex-start;gap:11px;padding:10px 2px}
-.winItem+.winItem{border-top:1px solid var(--line)}
-.winCheck{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;margin-top:2px;box-shadow:0 0 0 3px #15944714}
-.winText{font-size:12.5px;line-height:1.5;color:var(--text)}
-.winText b{font-weight:750}
 .moreTasks{background:#edf1ff;color:#2947c8}.blockedItem{border-color:#f3c8c8!important;background:#fff8f8!important}.teamBlockHead{font-size:12px;font-weight:800;color:var(--red);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
 .attnGroup{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fbfcff}.attnGroup:last-child{margin-bottom:0}
 .attnGroupHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800}.attnGroupHead span:first-child{flex:1;min-width:140px}
@@ -178,7 +172,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <!-- ================= /OVERALL / ALL SPRINTS VIEW ================= -->
 
 <!-- Recent Wins: always visible, scoped to whichever view is active above -->
-<div class="card"><h2 id="teamWinsTitle">Recent Wins</h2><div class="desc" id="teamWinsDesc" style="margin-bottom:6px">Latest completions — a balance to the risk view above.</div><div id="teamWins"></div></div>
+<div class="card"><h2 id="teamWinsTitle">Recent Wins / Improvements</h2><div class="desc" id="teamWinsDesc">Completed tasks, features, versions, and plan items — a balance to the risk view above.</div><div id="teamWins"></div></div>
 
 </section>
 
@@ -395,8 +389,7 @@ function renderTeamWins(){
  featureSummary(allPbis).filter(f=>f.status==="Completed").forEach(f=>wins.push(`Feature <b>${f.feature}</b> fully delivered`));
  sprintCompletionSummary().filter(s=>s.total&&s.done>=s.total).forEach(s=>wins.push(`<b>${s.sprint}</b> complete${s.release?` (${s.release})`:""}`));
  data.sprintPlan.filter(p=>p.status==="Completed").slice(-3).forEach(p=>wins.push(`Plan item <b>${p.activity}</b> completed`));
- const shown=wins.slice(-4).reverse();
- el.innerHTML=shown.length?`<div class="winsList">${shown.map(w=>`<div class="winItem"><span class="winCheck">✓</span><span class="winText">${w}</span></div>`).join("")}</div>`:"<div class='emptyState'>No completions recorded yet.</div>";
+ el.innerHTML=wins.length?wins.slice(-6).reverse().map(w=>`<p class="good">✓ ${w}</p>`).join(""):"<div class='emptyState'>No completions recorded yet.</div>";
 }
 function sprintCompletionSummary(){
  const map={};
