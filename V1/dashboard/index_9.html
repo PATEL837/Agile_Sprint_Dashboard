@@ -109,7 +109,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 
 <!-- 4. Burndown, PBI Flow -->
 <div class="grid2">
-<div class="card"><h2>Sprint Burndown</h2><div class="desc" id="burndownDesc">Daily remaining story points for the sprint selected above</div><div class="chartBox"><canvas id="burndown"></canvas></div></div>
+<div class="card"><h2>Sprint Burndown</h2><div class="desc">Daily remaining story points for the sprint selected above</div><div class="chartBox"><canvas id="burndown"></canvas></div></div>
 <div class="card"><h2>Features Burndown (#)</h2><div class="desc">Daily remaining feature count — log it on the Daily tab</div><div class="chartBox"><canvas id="featureBurndown"></canvas></div></div>
 </div>
 <div class="grid2">
@@ -156,8 +156,6 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <div class="card"><h2>Velocity Trend</h2><div class="desc">Planned vs completed story points across all sprints, with velocity %</div><div class="chartBox"><canvas id="velocityChart"></canvas></div></div>
 <div class="card"><h2>Completion Trend</h2><div class="desc">PBIs completed per sprint</div><div class="chartBox"><canvas id="throughput"></canvas></div></div>
 </div>
-
-<div class="card"><h2>Overall Features Burndown</h2><div class="desc">Release-level feature burndown across all sprints — features completed each sprint reduce the remaining count toward zero.</div><div class="chartBox"><canvas id="overallFeatureBurndown"></canvas></div></div>
 
 <div class="card">
 <div class="toolbar"><div><h2>Traceability: Version → Feature → PBI → Status</h2><div class="desc">Across all sprints. Expand a version to see its features, expand a feature to see the PBIs/tasks that make it up, and their status and progress.</div></div></div>
@@ -209,19 +207,13 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <div class="field"><label>Status</label><select id="pStatus"><option>Not Started</option><option>In Progress</option><option>Review</option><option>Done</option><option>Blocked</option></select></div><div class="field"><label>Priority</label><select id="pPriority"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Progress % <span style="font-weight:400;color:var(--muted)">(work item)</span></label><input id="pProgress" type="number" min="0" max="100" value="0"></div><div class="field"><label>Due Date</label><input id="pDue" type="date"></div><div class="field"><label>Sprint #</label><input id="pSprint" placeholder="Sprint 2"></div><div class="field"><label>Carry Forward?</label><select id="pCarry"><option>No</option><option>Yes</option></select></div><div class="field"><label>Sprint Feature</label><input id="pFeature" list="featureOptions" placeholder="Select or type a feature"><datalist id="featureOptions"><option>Authentication</option><option>Reporting</option><option>Dashboard</option><option>Search</option><option>Integration</option><option>Accessibility</option></datalist></div><div class="field"><label>Release / Version</label><input id="pRelease" placeholder="V-1.3"></div><div class="field"><label>Effort % <span style="font-weight:400;color:var(--muted)">(this item's effort, not a person's utilization)</span></label><input id="pEffort" type="number" min="0" max="100" value="0"></div><div class="field"><label>Confidence</label><select id="pConfidence"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Product Document #</label><input id="pProductDoc" placeholder="PROD-12345"></div><div class="field"><label>Sandbox Document #</label><input id="pSandboxDoc" placeholder="SBX-12345"></div>
 <div id="wbsRecommend" class="wbsHint hidden">💡 This is a large work item (13–21 points). Consider breaking this work item into smaller tasks. This is a suggestion, not a requirement — 21-point items are still allowed.</div>
 <div class="field full"><label>Notes / Blocker</label><textarea id="pNotes"></textarea></div><div class="actions"><button class="btn primary">Save PBI</button><button type="button" class="btn secondary" onclick="clearPbiForm()">Clear</button></div></form></div>
-<div class="card"><div class="toolbar"><div><h2>Sprint Tasks / PBIs</h2><div class="desc">Add, edit, or remove work items.</div></div><div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap"><div class="field" style="min-width:160px"><label>Filter by Sprint #</label><select id="pbiSprintFilter" onchange="renderPbis()"><option value="">All Sprints</option></select></div><button class="btn danger" onclick="clearAllPbis()">Delete All</button></div></div><div class="tableWrap"><table><thead><tr><th>Task / PBI</th><th>Sprint</th><th>Description</th><th>Task</th><th>Owner</th><th>Sprint Feature</th><th>Version</th><th>Product Doc</th><th>Sandbox Doc</th><th>SP</th><th>Effort %</th><th>Status</th><th>Progress</th><th>Priority</th><th>Actions</th></tr></thead><tbody id="pbiTable"></tbody></table></div><div id="pbiCards" class="mobileCards"></div></div>
+<div class="card"><div class="toolbar"><div><h2>Sprint Tasks / PBIs</h2><div class="desc">Add, edit, or remove work items.</div></div><button class="btn danger" onclick="clearAllPbis()">Delete All</button></div><div class="tableWrap"><table><thead><tr><th>Task / PBI</th><th>Sprint</th><th>Description</th><th>Task</th><th>Owner</th><th>Sprint Feature</th><th>Version</th><th>Product Doc</th><th>Sandbox Doc</th><th>SP</th><th>Effort %</th><th>Status</th><th>Progress</th><th>Priority</th><th>Actions</th></tr></thead><tbody id="pbiTable"></tbody></table></div><div id="pbiCards" class="mobileCards"></div></div>
 </section>
 
 <section id="daily" class="tab">
 <div class="card"><h2>Daily Sprint Update</h2><div class="desc">One row per day. Remaining SP powers the burndown.</div>
 <form id="dailyForm"><div class="field"><label>Date</label><input id="dDate" type="date" required></div><div class="field"><label>Remaining SP</label><input id="dRemaining" type="number" min="0" required></div><div class="field"><label>Features Remaining</label><input id="dFeatures" type="number" min="0" placeholder="optional"></div><div class="field"><label>PBIs Done Today</label><input id="dDone" type="number" min="0" value="0"></div><div class="field"><label>Sprint</label><select id="dSprint"></select></div><div class="field"><label>Notes</label><input id="dNotes"></div><div class="actions"><button class="btn primary" id="dSubmitBtn">Save Daily Update</button><button type="button" class="btn secondary hidden" id="dCancelBtn" onclick="cancelDailyEdit()">Cancel Edit</button></div></form></div>
 <div class="card"><h2>Daily History</h2><div class="tableWrap"><table><thead><tr><th>Date</th><th>Remaining SP</th><th>Features Left</th><th>PBIs Done</th><th>Notes</th><th>Sprint</th><th>Actions</th></tr></thead><tbody id="dailyTable"></tbody></table></div><div id="dailyCards" class="mobileCards"></div></div>
-</section>
-
-<section id="relplan" class="tab">
-<div class="card"><h2>Release Planning / Release Metrics</h2><div class="desc">Define planned feature targets per release and log features completed each sprint. Remaining Features recalculates automatically and drives the Overall Features Burndown chart on the Dashboard tab — this is preferred over inferring progress from individual PBI status.</div>
-<form id="relForm"><div class="field"><label>Release Name</label><input id="relName" placeholder="V-1.3" required></div><div class="field"><label>Total Features Planned</label><input id="relTotal" type="number" min="0" required></div><div class="field"><label>Number of Sprints</label><input id="relSprints" type="number" min="1" value="1" required></div><div class="actions"><button class="btn primary" id="relSubmitBtn">Save Release Plan</button><button type="button" class="btn secondary hidden" id="relCancelBtn" onclick="cancelRelEdit()">Cancel Edit</button></div></form></div>
-<div id="releasePlanList"></div>
 </section>
 
 <section id="history" class="tab">
@@ -231,9 +223,8 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 </section>
 
 <section id="data" class="tab">
-<div class="card"><h2>Save Data</h2><div class="desc">First click: pick your <b>data/agile_dashboard_data.json</b> file once to link it — browsers require this one-time permission step and won't let a page write to disk silently. After that, this dashboard remembers the link (even after reloading the page), and every "Save Data" click overwrites that exact file with no dialog. Reloading the dashboard also reads back from that same linked file, so what you see always matches what's on disk.</div>
-<div class="actions"><button class="btn primary" onclick="saveDataToFile()">💾 Save Data</button><button class="btn secondary hidden" id="unlinkFileBtn" onclick="unlinkSavedFile()">🔗 Unlink File</button></div>
-<div class="sub" id="linkedFileStatus" style="margin-top:8px"></div>
+<div class="card"><h2>Save Data</h2><div class="desc">Writes every change made in this dashboard straight to <b>agile_dashboard_data.json</b> in the data folder. In browsers that support it (Chrome/Edge), pick the file once and every later click overwrites it directly — no re-download needed. Other browsers fall back to a download you drop into the data folder.</div>
+<div class="actions"><button class="btn primary" onclick="saveDataToFile()">💾 Save Data</button></div>
 <div id="saveDataNotice" class="hidden" style="margin-top:12px"></div></div>
 <div class="card"><h2>Data Backup & Transfer</h2><div class="desc">Use Export on your phone, then Import the downloaded file on your PC. This is the Stage 1 way to move data between devices.</div>
 <div class="actions"><button class="btn primary" onclick="exportData()">⬇ Export JSON</button><button class="btn secondary" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button><button class="btn secondary" onclick="reloadFromJson()">🔄 Reload data</button><input id="importFile" type="file" accept=".json,application/json" class="hidden"></div>
@@ -247,8 +238,8 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 const KEY="agileVelocityStage1";
-const navItems=[["dashboard","📊","Dashboard"],["sprint","⚙️","Sprint"],["pbi","📝","PBIs"],["daily","🔄","Daily"],["relplan","🚀","Release Plan"],["history","📈","History"],["data","💾","Data"]];
-const empty=()=>({sprint:{name:"Sprint 1",start:"",end:"",members:11,hours:8,holiday:0,pto:0,other:0,goal:""},pbis:[],daily:[],history:[],releases:[],releasePlans:[],sprintPlan:[]});
+const navItems=[["dashboard","📊","Dashboard"],["sprint","⚙️","Sprint"],["pbi","📝","PBIs"],["daily","🔄","Daily"],["history","📈","History"],["data","💾","Data"]];
+const empty=()=>({sprint:{name:"Sprint 1",start:"",end:"",members:11,hours:8,holiday:0,pto:0,other:0,goal:""},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]});
 let data=empty(), charts={}, dataSource="local";
 function normalizeData(){
   data.sprint=data.sprint||empty().sprint;
@@ -256,8 +247,6 @@ function normalizeData(){
   data.daily=Array.isArray(data.daily)?data.daily:[];
   data.history=Array.isArray(data.history)?data.history:[];
   data.releases=Array.isArray(data.releases)?data.releases:[];
-  data.releasePlans=Array.isArray(data.releasePlans)?data.releasePlans:[];
-  data.releasePlans.forEach(r=>{r.name=r.name||"";r.total=Number(r.total||0);r.sprints=Math.max(1,Number(r.sprints||1));r.completed=Array.isArray(r.completed)?r.completed.map(Number):[];while(r.completed.length<r.sprints)r.completed.push(0);r.completed.length=r.sprints});
   data.sprintPlan=Array.isArray(data.sprintPlan)?data.sprintPlan:[];
   if(!data.sprintPlan.length&&Array.isArray(data.weeklyPlan)&&data.weeklyPlan.length){
     data.sprintPlan=data.weeklyPlan.map(w=>({activity:w.plan||"",feature:"",week:w.week||"",status:(Number(w.actual||0)>=100?"Completed":(Number(w.actual||0)>0?"In Progress":"Planned")),actual:Number(w.actual||0),carry:(Number(w.carry||0)>0?"Yes":"No"),notes:w.notes||""}));
@@ -279,7 +268,7 @@ function go(id,el){
  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");
  document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));
  window.scrollTo({top:0,behavior:"smooth"});
- ({dashboard:renderDashboard,sprint:renderSprint,pbi:renderPbis,daily:renderDaily,relplan:renderReleasePlans,history:renderHistory,data:updateLinkedFileStatus})[id]?.();
+ ({dashboard:renderDashboard,sprint:renderSprint,pbi:renderPbis,daily:renderDaily,history:renderHistory,data:()=>{}})[id]?.();
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(data));saveState.textContent="● Saved locally";}
 function commit(){return currentSprintPbis().reduce((a,p)=>a+Number(p.sp||0),0)}
@@ -405,16 +394,12 @@ function renderVersionProgress(){
 <div class="mobileCards">${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<div class="mobileItem"><div class="mobileItemTop"><b>${r.version}</b><span class="pill">${pct}%</span></div><div class="mobileGrid"><div><small>Total Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.total-r.done}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${pct}%"></div></div></div>`}).join("")}</div>`;
 }
 function drawCharts(){
- destroy("b");destroy("f");destroy("v");destroy("vs");destroy("t");destroy("fb");destroy("fd");destroy("ofb");
+ destroy("b");destroy("f");destroy("v");destroy("vs");destroy("t");destroy("fb");destroy("fd");
  ensureViewSprint();
  const n=sprintDays(),c=selectedCommit();
- const bdDesc=document.getElementById("burndownDesc");
- const dailyView=data.daily.filter(x=>x.sprint?x.sprint===selectedSprint:selectedSprint===data.sprint.name);
- if(!isOverall()&&document.getElementById("burndown")){
-  if(bdDesc)bdDesc.textContent=`Daily remaining story points for ${selectedSprint} only`;
-  const dates=dailyView.map(x=>x.date), remaining=dailyView.map(x=>x.remaining), ideal=Array.from({length:Math.max(n,dates.length,2)},(_,i)=>Math.max(0,c-(c*i/(Math.max(n,dates.length,2)-1))));
-  charts.b=new Chart(document.getElementById("burndown"),{type:"line",data:{labels:dates.length?dates:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}});
- }
+ const dailyView=data.daily.filter(x=>(x.sprint||data.sprint.name)===selectedSprint);
+ const dates=dailyView.map(x=>x.date), remaining=dailyView.map(x=>x.remaining), ideal=Array.from({length:Math.max(n,dates.length,2)},(_,i)=>Math.max(0,c-(c*i/(Math.max(n,dates.length,2)-1))));
+ charts.b=new Chart(document.getElementById("burndown"),{type:"line",data:{labels:dates.length?dates:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}});
  const featDates=dailyView.filter(x=>x.featuresRemaining!==null&&x.featuresRemaining!==undefined);
  const fbEl=document.getElementById("featureBurndown");
  if(fbEl)charts.fb=new Chart(fbEl,{type:"line",data:{labels:featDates.map(x=>x.date),datasets:[{label:"Features Remaining",data:featDates.map(x=>x.featuresRemaining),tension:.2,borderColor:"#c87500",backgroundColor:"#c8750022",fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
@@ -431,54 +416,6 @@ function drawCharts(){
  const vsEl=document.getElementById("velocityChartSprint");
  if(vsEl)charts.vs=new Chart(vsEl,{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
  charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:h.map(x=>x.name),datasets:[{label:"PBIs Completed",data:h.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
- const ofbEl=document.getElementById("overallFeatureBurndown");
- if(ofbEl){
-  const sprintNames=allSprintNames();
-  let total,completedAt,labels;
-  if(data.releasePlans.length){
-   const maxSprints=Math.max(...data.releasePlans.map(r=>r.sprints));
-   total=data.releasePlans.reduce((a,r)=>a+r.total,0);
-   completedAt=Array.from({length:maxSprints},(_,i)=>data.releasePlans.reduce((a,r)=>a+Number(r.completed[i]||0),0));
-   labels=Array.from({length:maxSprints},(_,i)=>sprintNames[i]||("Sprint "+(i+1)));
-  }else{
-   const featureNames=[...new Set(data.pbis.map(p=>(p.feature||"").trim()).filter(Boolean))];
-   total=featureNames.length;
-   const sprintIdx=n=>{const i=sprintNames.indexOf(n);return i<0?sprintNames.length-1:i};
-   completedAt=new Array(sprintNames.length).fill(0);
-   featureNames.forEach(f=>{
-    const fp=data.pbis.filter(p=>(p.feature||"").trim()===f);
-    const allDone=fp.length>0&&fp.every(p=>p.status==="Done");
-    if(allDone){const idx=Math.max(...fp.map(p=>sprintIdx(p.sprint||data.sprint.name)));completedAt[idx]=(completedAt[idx]||0)+1}
-   });
-   labels=sprintNames;
-  }
-  let running=0;const actualRemaining=completedAt.map(c=>{running+=c;return Math.max(0,total-running)});
-  const steps=Math.max(labels.length-1,1);
-  const plannedRemaining=labels.map((_,i)=>Math.max(0,Math.round(total-(total*i/steps))));
-  const xs=actualRemaining.map((_,i)=>i),ys=actualRemaining;
-  const nPts=xs.length,sumX=xs.reduce((a,b)=>a+b,0),sumY=ys.reduce((a,b)=>a+b,0),sumXY=xs.reduce((a,i)=>a+xs[i]*ys[i],0),sumXX=xs.reduce((a,i)=>a+xs[i]*xs[i],0);
-  const denom=(nPts*sumXX-sumX*sumX)||1,slope=(nPts*sumXY-sumX*sumY)/denom,intercept=(sumY-slope*sumX)/nPts;
-  const trendRemaining=xs.map(i=>Math.max(0,Math.round(intercept+slope*i)));
-  const curSprintIdx=labels.indexOf(data.sprint.name);
-  const curSprintMarker={id:"curSprintMarker",afterDraw(c){
-   if(curSprintIdx<0||curSprintIdx>=labels.length)return;
-   const xScale=c.scales.x;if(!xScale)return;
-   const x=xScale.getPixelForValue(curSprintIdx),area=c.chartArea,ctx=c.ctx;
-   ctx.save();
-   ctx.strokeStyle="#6b3fd699";ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
-   ctx.beginPath();ctx.moveTo(x,area.top+14);ctx.lineTo(x,area.bottom);ctx.stroke();
-   ctx.setLineDash([]);ctx.fillStyle="#6b3fd6";
-   ctx.beginPath();ctx.moveTo(x-5,area.top+6);ctx.lineTo(x+5,area.top+6);ctx.lineTo(x,area.top+14);ctx.closePath();ctx.fill();
-   ctx.font="700 10px Inter,ui-sans-serif,system-ui,sans-serif";ctx.textAlign="center";
-   ctx.fillText("Current Sprint",x,area.top+4);
-   ctx.restore();
-  }};
-  charts.ofb=new Chart(ofbEl,{type:"line",data:{labels,datasets:[
-   {label:"Planned Burndown",data:plannedRemaining,borderDash:[5,5],borderColor:"#697386",tension:.2},
-   {label:"Actual Remaining",data:actualRemaining,borderColor:"#365cff",backgroundColor:"#365cff22",fill:true,tension:.2},
-   {label:"Remaining Features Trend",data:trendRemaining,borderColor:"#c87500",borderDash:[2,3],tension:.2,pointRadius:0}
-  ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,title:{display:true,text:"Features Remaining"}}}},plugins:[curSprintMarker]});
- }
 }
 function renderSprint(){
  sName.value=data.sprint.name;sStart.value=data.sprint.start;sEnd.value=data.sprint.end;sMembers.value=data.sprint.members;sGoal.value=data.sprint.goal;
@@ -491,19 +428,9 @@ function clearPbiForm(){editId.value="";pId.value="";pDesc.value="";pTask.value=
 pbiForm.onsubmit=e=>{e.preventDefault();let p={id:pId.value.trim(),desc:pDesc.value.trim(),task:pTask.value.trim(),goal:pGoal.value.trim(),owner:pOwner.value.trim(),sp:+pSP.value,status:pStatus.value,priority:pPriority.value,progress:+pProgress.value,due:pDue.value,sprint:pSprint.value.trim()||data.sprint.name,carry:pCarry.value,feature:pFeature.value.trim(),release:pRelease.value.trim(),effort:+pEffort.value,confidence:pConfidence.value,productDoc:pProductDoc.value.trim(),sandboxDoc:pSandboxDoc.value.trim(),notes:pNotes.value};let i=data.pbis.findIndex(x=>x.id===editId.value);if(i>=0)data.pbis[i]=p;else data.pbis.push(p);save();clearPbiForm();renderPbis();renderDashboard()};
 function pbiHtml(p,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${p.id}</b><span class="pill">${p.status}</span></div><div style="margin-top:4px">${p.desc}</div>${p.task?`<div class="sub"><small>Task:</small> ${p.task}</div>`:""}${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="mobileGrid"><div><small>Owner</small><b>${p.owner}</b></div><div><small>Story Points</small><b>${p.sp} SP</b></div><div><small>Sprint Feature</small><b>${p.feature||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Effort %</small><b>${p.effort||0}%</b></div><div><small>Progress</small><b>${p.progress}%</b></div><div><small>Product Doc</small><b>${p.productDoc||"—"}</b></div><div><small>Sandbox Doc</small><b>${p.sandboxDoc||"—"}</b></div><div><small>Priority</small><b>${p.priority}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div>${bigSp(p.sp)?`<div class="wbsHint" style="margin-top:8px">💡 Consider breaking this work item into smaller tasks.</div>`:""}<div class="actions"><button class="btn secondary" onclick="editPbi(${i})">Edit</button><button class="btn danger" onclick="deletePbi(${i})">Delete</button></div></div>`}
 function bigSp(sp){return sp===13||sp===21}
-function fillPbiSprintFilter(){
- const sel=document.getElementById("pbiSprintFilter");if(!sel)return;
- const cur=sel.value;
- const names=allSprintNames();
- sel.innerHTML=`<option value="">All Sprints</option>`+names.map(n=>`<option value="${n}" ${n===cur?"selected":""}>${n}</option>`).join("");
- if(names.includes(cur))sel.value=cur;
-}
 function renderPbis(){
- fillPbiSprintFilter();
- const filterVal=(document.getElementById("pbiSprintFilter")||{}).value||"";
- const rows=data.pbis.map((p,i)=>({p,i})).filter(({p})=>!filterVal||(p.sprint||data.sprint.name)===filterVal);
- pbiTable.innerHTML=rows.map(({p,i})=>`<tr><td><b>${p.id}</b></td><td><span class="pill${p.carry==="Yes"?" warn":""}">${p.sprint||"—"}${p.carry==="Yes"?" ↩":""}</span></td><td>${p.desc}</td><td>${p.task||"—"}</td><td>${p.owner}</td><td><span class="pill">${p.feature||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.productDoc||"—"}</td><td>${p.sandboxDoc||"—"}</td><td>${p.sp}${bigSp(p.sp)?` <span class="pill wbsPill" title="Consider breaking this work item into smaller tasks">Consider splitting</span>`:""}</td><td>${p.effort||0}%</td><td>${p.status}</td><td><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</td><td><span class="pill">${p.priority}</span></td><td><button class="btn secondary" onclick="editPbi(${i})">Edit</button> <button class="btn danger" onclick="deletePbi(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="15">${filterVal?"No tasks for this sprint.":"No tasks yet."}</td></tr>`;
- pbiCards.innerHTML=rows.map(({p,i})=>pbiHtml(p,i)).join("")||`<div class='notice'>${filterVal?"No PBIs for this sprint.":"No PBIs yet. Add your first PBI above."}</div>`;
+ pbiTable.innerHTML=data.pbis.map((p,i)=>`<tr><td><b>${p.id}</b></td><td><span class="pill${p.carry==="Yes"?" warn":""}">${p.sprint||"—"}${p.carry==="Yes"?" ↩":""}</span></td><td>${p.desc}</td><td>${p.task||"—"}</td><td>${p.owner}</td><td><span class="pill">${p.feature||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.productDoc||"—"}</td><td>${p.sandboxDoc||"—"}</td><td>${p.sp}${bigSp(p.sp)?` <span class="pill wbsPill" title="Consider breaking this work item into smaller tasks">Consider splitting</span>`:""}</td><td>${p.effort||0}%</td><td>${p.status}</td><td><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</td><td><span class="pill">${p.priority}</span></td><td><button class="btn secondary" onclick="editPbi(${i})">Edit</button> <button class="btn danger" onclick="deletePbi(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="15">No tasks yet.</td></tr>`;
+ pbiCards.innerHTML=data.pbis.map(pbiHtml).join("")||"<div class='notice'>No PBIs yet. Add your first PBI above.</div>";
 }
 function editPbi(i){let p=data.pbis[i];editId.value=p.id;pId.value=p.id;pDesc.value=p.desc;pTask.value=p.task||"";pGoal.value=p.goal||"";pOwner.value=p.owner;pSP.value=p.sp;pStatus.value=p.status;pPriority.value=p.priority;pProgress.value=p.progress;pDue.value=p.due||"";pSprint.value=p.sprint||data.sprint.name;pCarry.value=p.carry||"No";pFeature.value=p.feature||"";pRelease.value=p.release||"";pEffort.value=p.effort||0;pConfidence.value=p.confidence||"High";pProductDoc.value=p.productDoc||"";pSandboxDoc.value=p.sandboxDoc||"";pNotes.value=p.notes||"";checkWbsSize();window.scrollTo({top:0,behavior:"smooth"})}
 function deletePbi(i){if(confirm("Delete this PBI?")){data.pbis.splice(i,1);save();renderPbis();renderDashboard()}}
@@ -725,66 +652,7 @@ function renderHistory(){historyTable.innerHTML=data.history.map((x,i)=>`<tr><td
 function deleteHistory(i){if(!confirm("Delete this sprint from history?"))return;if(historyEditIndex===i)cancelHistoryEdit();data.history.splice(i,1);save();renderHistory();renderDashboard()}
 function clearHistory(){if(confirm("Delete all history?")){data.history=[];save();renderHistory();renderDashboard()}}
 
-let relEditIndex=null;
-relForm.onsubmit=e=>{
- e.preventDefault();
- const name=relName.value.trim(),total=+relTotal.value,sprints=Math.max(1,+relSprints.value);
- let i=relEditIndex;
- if(i===null)i=data.releasePlans.findIndex(r=>r.name.trim().toLowerCase()===name.toLowerCase());
- if(i>=0){
-  const prev=data.releasePlans[i].completed||[];
-  const completed=Array.from({length:sprints},(_,k)=>Number(prev[k]||0));
-  data.releasePlans[i]={name,total,sprints,completed};
- }else{
-  data.releasePlans.push({name,total,sprints,completed:Array(sprints).fill(0)});
- }
- relEditIndex=null;relSubmitBtn.textContent="Save Release Plan";relCancelBtn.classList.add("hidden");
- save();relForm.reset();relSprints.value=1;renderReleasePlans();renderDashboard()
-};
-function editRel(i){const r=data.releasePlans[i];relName.value=r.name;relTotal.value=r.total;relSprints.value=r.sprints;relEditIndex=i;relSubmitBtn.textContent="Update Release Plan";relCancelBtn.classList.remove("hidden");relName.focus()}
-function cancelRelEdit(){relEditIndex=null;relForm.reset();relSprints.value=1;relSubmitBtn.textContent="Save Release Plan";relCancelBtn.classList.add("hidden")}
-function deleteRel(i){if(!confirm("Delete this release plan?"))return;if(relEditIndex===i)cancelRelEdit();data.releasePlans.splice(i,1);save();renderReleasePlans();renderDashboard()}
-function updateRelCompleted(pi,si,val){const r=data.releasePlans[pi];if(!r)return;r.completed[si]=Math.max(0,Number(val)||0);save();renderReleasePlans();renderDashboard()}
-function renderReleasePlans(){
- const el=document.getElementById("releasePlanList");if(!el)return;
- if(!data.releasePlans.length){el.innerHTML="<div class='card'><div class='emptyState'>No release plans yet. Add one above to drive the Overall Features Burndown chart.</div></div>";return}
- el.innerHTML=data.releasePlans.map((r,pi)=>{
-  let running=0;
-  const rows=r.completed.map((c,si)=>{running+=c;const remaining=Math.max(0,r.total-running);return `<div class="field"><label>Sprint ${si+1} Completed</label><input type="number" min="0" value="${c}" onchange="updateRelCompleted(${pi},${si},this.value)"></div><div class="field"><label>Remaining After Sprint ${si+1}</label><input value="${remaining}" disabled></div>`}).join("");
-  const totalRemaining=Math.max(0,r.total-running);
-  return `<div class="card"><div class="toolbar"><div><h2>${r.name}</h2><div class="desc">Total Features Planned: <b>${r.total}</b> · Sprints: <b>${r.sprints}</b> · Remaining: <b>${totalRemaining}</b></div></div><div class="actions"><button class="btn secondary" onclick="editRel(${pi})">Edit</button><button class="btn danger" onclick="deleteRel(${pi})">Delete</button></div></div><form onsubmit="return false" style="margin-top:11px">${rows}</form></div>`
- }).join("")
-}
-
 let savedFileHandle=null;
-function idbOpen(){return new Promise((res,rej)=>{const r=indexedDB.open("agileDashboardFS",1);r.onupgradeneeded=()=>r.result.createObjectStore("handles");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
-async function idbGetHandle(){try{const db=await idbOpen();return await new Promise((res,rej)=>{const tx=db.transaction("handles","readonly").objectStore("handles").get("dataFile");tx.onsuccess=()=>res(tx.result||null);tx.onerror=()=>rej(tx.error)})}catch(e){return null}}
-async function idbSetHandle(h){try{const db=await idbOpen();await new Promise((res,rej)=>{const tx=db.transaction("handles","readwrite").objectStore("handles").put(h,"dataFile");tx.onsuccess=()=>res();tx.onerror=()=>rej(tx.error)})}catch(e){}}
-async function idbDelHandle(){try{const db=await idbOpen();await new Promise((res,rej)=>{const tx=db.transaction("handles","readwrite").objectStore("handles").delete("dataFile");tx.onsuccess=()=>res();tx.onerror=()=>rej(tx.error)})}catch(e){}}
-function updateLinkedFileStatus(){
- const el=document.getElementById("linkedFileStatus"),btn=document.getElementById("unlinkFileBtn");if(!el)return;
- if(savedFileHandle){el.textContent="🔗 Linked to "+(savedFileHandle.name||"agile_dashboard_data.json")+" — saves write straight to it.";btn&&btn.classList.remove("hidden")}
- else{el.textContent=window.showSaveFilePicker?"Not linked yet — first Save Data click will ask you to pick the file once.":"This browser can't link a file directly — Save Data will download instead.";btn&&btn.classList.add("hidden")}
-}
-async function unlinkSavedFile(){savedFileHandle=null;await idbDelHandle();updateLinkedFileStatus();showSaveNotice("Unlinked. Next Save Data click will ask you to pick the file again.",true)}
-async function initFileHandle(){
- if(!window.showSaveFilePicker){updateLinkedFileStatus();return}
- const h=await idbGetHandle();
- if(h){
-  try{
-   if(await h.queryPermission({mode:"readwrite"})==="granted"){savedFileHandle=h}
-   else if(await h.requestPermission({mode:"readwrite"})==="granted"){savedFileHandle=h}
-  }catch(e){}
- }
- updateLinkedFileStatus();
- if(savedFileHandle){
-  try{
-   const file=await savedFileHandle.getFile();
-   const json=JSON.parse(await file.text());
-   if(json&&json.sprint&&Array.isArray(json.pbis)){data=json;dataSource="json";normalizeData();save();renderAll();saveState.textContent="● Loaded from linked file"}
-  }catch(e){}
- }
-}
 function validateData(d){
  const errs=[];
  if(!d||typeof d!=="object")errs.push("Data is not a valid object.");
@@ -794,8 +662,6 @@ function validateData(d){
  else d.daily.forEach((x,i)=>{if(!x.date)errs.push(`Daily row ${i+1}: missing date.`);if(x.remaining===undefined||x.remaining===null||isNaN(x.remaining))errs.push(`Daily row ${i+1} (${x.date||"?"}): Remaining SP must be a number.`)});
  if(!Array.isArray(d.history))errs.push("Velocity history list is invalid.");
  if(!Array.isArray(d.releases))errs.push("Releases list is invalid.");
- if(!Array.isArray(d.releasePlans))errs.push("Release plans list is invalid.");
- else d.releasePlans.forEach((r,i)=>{if(!r.name)errs.push(`Release plan ${i+1}: missing name.`);if(isNaN(r.total))errs.push(`Release plan ${i+1} (${r.name||"?"}): Total Features Planned must be a number.`)});
  if(!Array.isArray(d.sprintPlan))errs.push("Sprint plan list is invalid.");
  try{JSON.stringify(d)}catch(e){errs.push("Data cannot be serialized to JSON: "+e.message)}
  return errs;
@@ -809,18 +675,14 @@ async function saveDataToFile(){
   try{
    if(!savedFileHandle){
     savedFileHandle=await window.showSaveFilePicker({suggestedName:"agile_dashboard_data.json",types:[{description:"JSON",accept:{"application/json":[".json"]}}]});
-    await idbSetHandle(savedFileHandle);
-   }else if(await savedFileHandle.queryPermission({mode:"readwrite"})!=="granted"){
-    await savedFileHandle.requestPermission({mode:"readwrite"});
    }
    const writable=await savedFileHandle.createWritable();
    await writable.write(json);await writable.close();
-   dataSource="json";saveState.textContent="● Saved to "+(savedFileHandle.name||"agile_dashboard_data.json");
-   updateLinkedFileStatus();
+   dataSource="json";saveState.textContent="● Saved to agile_dashboard_data.json";
    showSaveNotice("✅ Saved successfully to "+(savedFileHandle.name||"agile_dashboard_data.json")+".",true);
   }catch(e){
    if(e && e.name==="AbortError")return;
-   savedFileHandle=null;await idbDelHandle();updateLinkedFileStatus();
+   savedFileHandle=null;
    showSaveNotice("❌ Save failed: "+(e&&e.message?e.message:"could not write file")+". Falling back to download.",false);
    downloadBlob("agile_dashboard_data.json",json,"application/json");
   }
@@ -838,7 +700,7 @@ function exportHistoryCsv(){downloadBlob("velocity-history.csv",csv([["Sprint","
 function resetAll(){if(confirm("This will permanently delete all dashboard data on this browser. Continue?")){data=empty();save();renderAll();alert("Dashboard reset.")}}
 function loadDemo(){data={sprint:{name:"Sprint 24",start:"2026-08-03",end:"2026-08-14",members:11,hours:8,holiday:0,pto:32,other:56,goal:"Deliver the highest-priority product increments predictably."},pbis:[
 {id:"PBI-1042",desc:"Authentication API",owner:"A. Patel",sp:8,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1047",desc:"Dashboard UI",owner:"J. Kim",sp:5,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1051",desc:"Reporting service",owner:"M. Chen",sp:13,status:"In Progress",priority:"High",progress:65,productDoc:"PRD-1051",sandboxDoc:"SBX-1051"},{id:"PBI-1054",desc:"Data export",owner:"R. Singh",sp:8,status:"In Progress",priority:"Medium",progress:45,productDoc:"PRD-1054",sandboxDoc:"SBX-1054"},{id:"PBI-1058",desc:"Search enhancement",owner:"L. Garcia",sp:3,status:"In Progress",priority:"Medium",progress:70,productDoc:"PRD-1058",sandboxDoc:"SBX-1058"},{id:"PBI-1061",desc:"QA automation",owner:"S. Brown",sp:5,status:"Review",priority:"Medium",progress:85,productDoc:"PRD-1061",sandboxDoc:"SBX-1061"},{id:"PBI-1064",desc:"External integration",owner:"K. Wilson",sp:8,status:"Blocked",priority:"High",progress:30,productDoc:"PRD-1064",sandboxDoc:"SBX-1064",notes:"Dependency pending"},{id:"PBI-1068",desc:"Performance tuning",owner:"D. Nguyen",sp:3,status:"In Progress",priority:"Low",progress:55,productDoc:"PRD-1068",sandboxDoc:"SBX-1068"},{id:"PBI-1070",desc:"Audit logging",owner:"T. Davis",sp:5,status:"Done",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1073",desc:"UI accessibility",owner:"N. Shah",sp:3,status:"Done",priority:"Medium",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"}],daily:[{date:"2026-08-03",remaining:61},{date:"2026-08-04",remaining:56},{date:"2026-08-05",remaining:50},{date:"2026-08-06",remaining:43},{date:"2026-08-07",remaining:38}],history:[{name:"Sprint 19",commit:60,done:51,pbis:18},{name:"Sprint 20",commit:62,done:58,pbis:21},{name:"Sprint 21",commit:60,done:55,pbis:20},{name:"Sprint 22",commit:65,done:62,pbis:24},{name:"Sprint 23",commit:58,done:53,pbis:19}],releases:[{version:"V-1.2",date:"2026-07-17",total:42,done:42},{version:"V-1.3",date:"2026-08-14",total:38,done:24}],sprintPlan:[{activity:"Complete reporting and validation activities",sprint:"Sprint 24",feature:"Reporting",week:"Week of Aug 3",status:"In Progress",actual:78,carry:"Yes",notes:"Carry forward remaining validation work"},{activity:"Ship authentication API",sprint:"Sprint 24",feature:"Authentication",week:"Week of Aug 3",status:"Completed",actual:100,carry:"No",notes:"Delivered ahead of schedule"},{activity:"External integration groundwork",sprint:"Sprint 24",feature:"Integration",week:"Week of Aug 3",status:"Blocked",actual:30,carry:"Yes",notes:"Waiting on vendor dependency"}]};const featureMap={"PBI-1042":"Authentication","PBI-1047":"Dashboard","PBI-1070":"Authentication","PBI-1073":"Accessibility","PBI-1051":"Reporting","PBI-1054":"Reporting","PBI-1058":"Search","PBI-1061":"Reporting","PBI-1064":"Integration","PBI-1068":"Dashboard"};data.pbis.forEach(p=>{p.release="V-1.3";p.feature=featureMap[p.id]||"";p.effort=p.progress;p.confidence=p.status==="Blocked"?"Low":(p.status==="Done"?"High":"Medium")});normalizeData();save();renderAll();alert("Demo data loaded.");}
-function renderAll(){renderSprint();renderPbis();renderDaily();renderReleasePlans();renderHistory();renderDashboard()}
+function renderAll(){renderSprint();renderPbis();renderDaily();renderHistory();renderDashboard()}
 async function loadInitial(){
  try{
   const res=await fetch("../data/agile_dashboard_data.json",{cache:"no-store"});
@@ -855,7 +717,7 @@ function reloadFromJson(){
   data=json;dataSource="json";normalizeData();save();renderAll();alert("Reloaded from data.json.");
  }).catch(()=>alert("No agile_dashboard_data.json found in ../data, or it's invalid."));
 }
-buildNav();loadInitial().then(()=>{renderAll();saveState.textContent=dataSource==="json"?"● Loaded from agile_dashboard_data.json":"● Saved locally";initFileHandle();});
+buildNav();loadInitial().then(()=>{renderAll();saveState.textContent=dataSource==="json"?"● Loaded from agile_dashboard_data.json":"● Saved locally";});
 </script>
 </body>
 </html>

@@ -1,0 +1,97 @@
+- Add "Save Data" button functionality on the Data tab. this should automatically replace the json file resides in the data directory.
+- "Daily History" header is not aligned what the data is presented in the columns for example: Features Left represents Remaining, PBIs Done represents Features Left etc.... also each items in the Daily History must be editable
+- "Daily Sprint Update" must have Sprint # selection (by default it should be selected as current sprint #)
+- we also want to have overall features burndown chart on the "Overall / All Sprints" in that we will going to show features burndown similar to how we show it in the individual sprint but this will be in respect to the Overall Features including the remaining sprints so allow user to add that information somewhere. we may let user add that in the "History" Tab probably but you choose the best approach. we will be having about 6-7 sprints and total features we need to work on will be 43 for this V-1.3 so the overall burndown would start from 43 and will reduce based on each sprint completed PBIs.
+- Sprint Burndown chart should only present the current sprint burndown information not the all the sprint.
+
+Please implement the following enhancements to the Agile Velocity Dashboard:
+
+1. Save Data Functionality
+- Add a "Save Data" button on the Data tab.
+- When clicked, all modifications made within the dashboard must be saved to the JSON data source.
+- The existing JSON file located in the /data directory should be automatically updated/replaced with the latest data.
+- Include success and error notifications after save operations.
+- Validate data before saving to prevent corrupt JSON.
+
+2. Daily History Improvements
+- Fix the Daily History table column mapping issue.
+- Currently the headers do not align with the displayed data. Ensure each column displays the correct field:
+  - Date → Date
+  - Remaining SP → Remaining Story Points
+  - Features Left → Features Remaining
+  - PBIs Done → Completed PBIs
+  - Notes → Notes
+  - Sprint → Sprint Number
+- Make every Daily History row fully editable.
+- Users should be able to add, edit, and delete Daily History entries directly from the UI.
+- Changes should be included when Save Data is clicked.
+
+3. Daily Sprint Update Enhancements
+- Add a Sprint selection dropdown to the Daily Sprint Update section.
+- The dropdown should automatically default to the currently active sprint.
+- Users must be able to switch to any sprint and add/update daily progress information for that sprint.
+- Newly entered updates should automatically appear in the Daily History table.
+
+4. Overall Features Burndown (All Sprints)
+- Add a new "Overall Features Burndown" chart under the Overall / All Sprints section.
+- This chart must show release-level progress across all sprints instead of individual sprint progress.
+- Example:
+  - Total release features = 43
+  - Sprint 1 completed features = X
+  - Sprint 2 completed features = Y
+  - Sprint 3 completed features = Z
+  - Remaining features should decrease accordingly.
+- The chart should display:
+  - Planned burndown line
+  - Actual burndown line
+  - Remaining features trend
+- Support approximately 6–7 sprints per release.
+
+5. Release-Level Planning Data
+- Add a dedicated Release Planning / Release Metrics section (preferred over the existing History section).
+- Allow users to define:
+  - Release Name (e.g., V-1.3)
+  - Total Features Planned
+  - Number of Sprints
+  - Features Completed Per Sprint
+  - Remaining Features
+- This data will feed the Overall Features Burndown chart.
+- The dashboard should automatically recalculate remaining features whenever sprint completion data changes.
+
+6. General Requirements
+- Preserve all existing functionality.
+- Ensure all new fields are loaded from and saved back to the JSON file.
+- Maintain responsive UI design.
+- Ensure charts refresh immediately after data changes or save operations.
+- Validate numeric fields to prevent invalid burndown calculations.
+- Keep the interface simple and easy to update during sprint reviews and PI/release planning sessions.
+
+
+Please implement the following dashboard enhancements:
+
+• Add a "Save Data" button on the Data tab that validates changes and updates/replaces the JSON file in the /data directory. Show success/error notifications after save.
+
+• Fix Daily History column mapping so headers match the correct data:
+  - Date → Date
+  - Remaining SP → Remaining Story Points
+  - Features Left → Features Remaining
+  - PBIs Done → Completed PBIs
+  - Notes → Notes
+  - Sprint → Sprint Number
+  Also make all Daily History rows editable, with add/edit/delete support.
+
+• Add Sprint # selection to the Daily Sprint Update section. Default to the current active sprint. Updates should be saved against the selected sprint and appear in Daily History.
+
+• Add an Overall Features Burndown chart under "Overall / All Sprints". This should track release-level feature progress across all sprints (not sprint-specific). Example: Release V-1.3 starts with 43 total features and burns down as PBIs/features are completed across 6–7 sprints. Display Planned, Actual, and Remaining feature trends.
+
+• Add a Release Planning/Release Metrics section to manage:
+  - Release Name
+  - Total Features Planned
+  - Total Sprints
+  - Features Completed per Sprint
+  - Remaining Features
+  This data should drive the Overall Features Burndown chart and recalculate automatically.
+
+• Modify the Sprint Burndown chart to display only the currently selected/active sprint's burndown data, not data from all sprints.
+
+• Preserve all existing functionality, ensure responsive design, refresh charts immediately after updates, and load/save all new fields to the JSON data source.

@@ -303,42 +303,270 @@
     }
   ],
   "daily": [
-    { "date": "2026-07-07", "remaining": 26, "featuresRemaining": 43, "done": 0, "notes": "Tasks initiated.", "sprint": "Sprint 2" },
-    { "date": "2026-07-10", "remaining": 20, "featuresRemaining": 43, "done": 0, "notes": "Tasks in progress.", "sprint": "Sprint 2" },
-    { "date": "2026-07-15", "remaining": 13, "featuresRemaining": 42, "done": 1, "notes": "1 PBI completed. 1 Remained.", "sprint": "Sprint 2" },
-    { "date": "2026-07-21", "remaining": 65, "featuresRemaining": 41, "done": 0, "notes": "Tasks in progress", "sprint": "Sprint 2" },
-    { "date": "2026-07-28", "remaining": 35, "featuresRemaining": 41, "done": 0, "notes": "Task in progress", "sprint": "Sprint 2" },
-    { "date": "2026-08-04", "remaining": 0, "featuresRemaining": 36, "done": 5, "notes": "Sprint 2 completed.", "sprint": "Sprint 2" },
-    { "date": "2026-08-04", "remaining": 61, "featuresRemaining": 6, "done": 0, "notes": "Sprint 3 kicked off.", "sprint": "Sprint 3" },
-    { "date": "2026-08-06", "remaining": 55, "featuresRemaining": 6, "done": 0, "notes": "Investigating gateway cert issue.", "sprint": "Sprint 3" },
-    { "date": "2026-08-08", "remaining": 48, "featuresRemaining": 5, "done": 1, "notes": "Unicode test PBI closed.", "sprint": "Sprint 3" },
-    { "date": "2026-08-11", "remaining": 41, "featuresRemaining": 5, "done": 0, "notes": "Blocker escalated to vendor.", "sprint": "Sprint 3" },
-    { "date": "2026-08-13", "remaining": null, "featuresRemaining": null, "done": 0, "notes": "Mid-sprint check-in, remaining not yet logged (null test).", "sprint": "Sprint 3" }
+    {
+      "date": "2026-07-07",
+      "sprint": "Sprint 1",
+      "remaining": 26,
+      "featuresRemaining": 43,
+      "done": 0,
+      "notes": "Tasks initiated."
+    },
+    {
+      "date": "2026-07-10",
+      "sprint": "Sprint 1",
+      "remaining": 20,
+      "featuresRemaining": 43,
+      "done": 0,
+      "notes": "Tasks in progress."
+    },
+    {
+      "date": "2026-07-15",
+      "sprint": "Sprint 1",
+      "remaining": 13,
+      "featuresRemaining": 42,
+      "done": 1,
+      "notes": "1 PBI completed. 1 Remained."
+    },
+    {
+      "date": "2026-07-21",
+      "sprint": "Sprint 1",
+      "remaining": 65,
+      "featuresRemaining": 41,
+      "done": 0,
+      "notes": "Tasks in progress"
+    },
+    {
+      "date": "2026-07-28",
+      "remaining": 35,
+      "featuresRemaining": 41,
+      "done": 0,
+      "notes": "Task in progress",
+      "sprint": "Sprint 2"
+    },
+    {
+      "date": "2026-08-04",
+      "remaining": 0,
+      "featuresRemaining": 36,
+      "done": 5,
+      "notes": "Sprint 2 completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "date": "2026-08-04",
+      "remaining": 61,
+      "featuresRemaining": 6,
+      "done": 0,
+      "notes": "Sprint 3 kicked off.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "date": "2026-08-06",
+      "remaining": 55,
+      "featuresRemaining": 6,
+      "done": 0,
+      "notes": "Investigating gateway cert issue.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "date": "2026-08-08",
+      "remaining": 48,
+      "featuresRemaining": 5,
+      "done": 1,
+      "notes": "Unicode test PBI closed.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "date": "2026-08-11",
+      "remaining": 41,
+      "featuresRemaining": 5,
+      "done": 0,
+      "notes": "Blocker escalated to vendor.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "date": "2026-08-13",
+      "sprint": "Sprint 3",
+      "remaining": 0,
+      "featuresRemaining": 0,
+      "done": 0,
+      "notes": "Mid-sprint check-in, remaining not yet logged (null test)."
+    }
   ],
   "history": [
-    { "name": "Sprint 1", "commit": 26, "done": 26, "pbis": 2 },
-    { "name": "Sprint 2", "commit": 65, "done": 65, "pbis": 5 },
-    { "name": "Sprint 0", "commit": 40, "done": 0, "pbis": 0 }
+    {
+      "name": "Sprint 1",
+      "commit": 26,
+      "done": 26,
+      "pbis": 2
+    },
+    {
+      "name": "Sprint 2",
+      "commit": 65,
+      "done": 65,
+      "pbis": 5
+    }
   ],
   "releases": [
-    { "version": "V-1.2", "date": "2026-07-01", "total": 30, "done": 30 },
-    { "version": "V-1.3", "date": "2026-08-04", "total": 32, "done": 32 },
-    { "version": "V-1.4", "date": "2026-08-29", "total": 12, "done": 2 }
+    {
+      "version": "V-1.2",
+      "date": "2026-07-01",
+      "total": 30,
+      "done": 30
+    },
+    {
+      "version": "V-1.3",
+      "date": "2026-08-04",
+      "total": 32,
+      "done": 32
+    },
+    {
+      "version": "V-1.4",
+      "date": "2026-08-29",
+      "total": 12,
+      "done": 2
+    }
   ],
   "sprintPlan": [
-    { "activity": "Implementation of SWRS-12675", "feature": "SWRS-12675", "week": "7-Jul-2026 to 21-Jul-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 1" },
-    { "activity": "Implementation of SWRS-12676", "feature": "SWRS-12676", "week": "7-Jul-2026 to 21-Jul-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 1" },
-    { "activity": "Implementation of SWRS-12694", "feature": "SWRS-12694", "week": "21-Jul-2026 to 04-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 2" },
-    { "activity": "Implementation of SWRS-12692", "feature": "SWRS-12692", "week": "21-Jul-2026 to 04-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 2" },
-    { "activity": "Implementation of SWRS-12666", "feature": "SWRS-12666", "week": "21-Jul-2026 to 04-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 2" },
-    { "activity": "Implementation of SWRS-12664", "feature": "SWRS-12664", "week": "21-Jul-2026 to 04-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 2" },
-    { "activity": "Implementation of SWRS-12677", "feature": "SWRS-12677", "week": "21-Jul-2026 to 04-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Tasks completed.", "sprint": "Sprint 2" },
-    { "activity": "Bulk re-run of failed HL7 messages", "feature": "SWRS-12701", "week": "04-Aug-2026 to 18-Aug-2026", "status": "In Progress", "actual": 55, "carry": "No", "notes": "Large item, WBS split candidate.", "sprint": "Sprint 3" },
-    { "activity": "Multi-select filter for species export", "feature": "SWRS-12705", "week": "04-Aug-2026 to 18-Aug-2026", "status": "In Progress", "actual": 40, "carry": "No", "notes": "", "sprint": "Sprint 3" },
-    { "activity": "HL7 gateway cert validation", "feature": "SWRS-12710", "week": "04-Aug-2026 to 18-Aug-2026", "status": "Blocked", "actual": 15, "carry": "No", "notes": "Vendor cert renewal pending.", "sprint": "Sprint 3" },
-    { "activity": "Unit tests for default-visibility rules", "feature": "SWRS-12714", "week": "04-Aug-2026 to 18-Aug-2026", "status": "In Progress", "actual": 90, "carry": "No", "notes": "PR review.", "sprint": "Sprint 3" },
-    { "activity": "Settings page pagination >200 templates", "feature": "SWRS-12666", "week": "04-Aug-2026 to 18-Aug-2026", "status": "In Progress", "actual": 25, "carry": "Yes", "notes": "Carried from Sprint 2.", "sprint": "Sprint 3" },
-    { "activity": "Accessibility pass on species checklist", "feature": "SWRS-12722", "week": "04-Aug-2026 to 18-Aug-2026", "status": "Planned", "actual": 0, "carry": "No", "notes": "Not started.", "sprint": "Sprint 3" },
-    { "activity": "Unicode/emoji rendering test", "feature": "SWRS-12730", "week": "04-Aug-2026 to 18-Aug-2026", "status": "Completed", "actual": 100, "carry": "No", "notes": "Verified.", "sprint": "Sprint 3" }
-  ]
+    {
+      "activity": "Implementation of SWRS-12675",
+      "feature": "SWRS-12675",
+      "week": "7-Jul-2026 to 21-Jul-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 1"
+    },
+    {
+      "activity": "Implementation of SWRS-12676",
+      "feature": "SWRS-12676",
+      "week": "7-Jul-2026 to 21-Jul-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 1"
+    },
+    {
+      "activity": "Implementation of SWRS-12694",
+      "feature": "SWRS-12694",
+      "week": "21-Jul-2026 to 04-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "activity": "Implementation of SWRS-12692",
+      "feature": "SWRS-12692",
+      "week": "21-Jul-2026 to 04-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "activity": "Implementation of SWRS-12666",
+      "feature": "SWRS-12666",
+      "week": "21-Jul-2026 to 04-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "activity": "Implementation of SWRS-12664",
+      "feature": "SWRS-12664",
+      "week": "21-Jul-2026 to 04-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "activity": "Implementation of SWRS-12677",
+      "feature": "SWRS-12677",
+      "week": "21-Jul-2026 to 04-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Tasks completed.",
+      "sprint": "Sprint 2"
+    },
+    {
+      "activity": "Bulk re-run of failed HL7 messages",
+      "feature": "SWRS-12701",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "In Progress",
+      "actual": 55,
+      "carry": "No",
+      "notes": "Large item, WBS split candidate.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "Multi-select filter for species export",
+      "feature": "SWRS-12705",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "In Progress",
+      "actual": 40,
+      "carry": "No",
+      "notes": "",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "HL7 gateway cert validation",
+      "feature": "SWRS-12710",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "Blocked",
+      "actual": 15,
+      "carry": "No",
+      "notes": "Vendor cert renewal pending.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "Unit tests for default-visibility rules",
+      "feature": "SWRS-12714",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "In Progress",
+      "actual": 90,
+      "carry": "No",
+      "notes": "PR review.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "Settings page pagination >200 templates",
+      "feature": "SWRS-12666",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "In Progress",
+      "actual": 25,
+      "carry": "Yes",
+      "notes": "Carried from Sprint 2.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "Accessibility pass on species checklist",
+      "feature": "SWRS-12722",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "Planned",
+      "actual": 0,
+      "carry": "No",
+      "notes": "Not started.",
+      "sprint": "Sprint 3"
+    },
+    {
+      "activity": "Unicode/emoji rendering test",
+      "feature": "SWRS-12730",
+      "week": "04-Aug-2026 to 18-Aug-2026",
+      "status": "Completed",
+      "actual": 100,
+      "carry": "No",
+      "notes": "Verified.",
+      "sprint": "Sprint 3"
+    }
+  ],
+  "releasePlans": []
 }
