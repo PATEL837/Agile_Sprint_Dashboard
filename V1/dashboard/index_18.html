@@ -60,6 +60,8 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 .winText b{font-weight:750}
 .moreTasks{background:#edf1ff;color:#2947c8}
 .pill.st-done{background:#e8f8ee;color:var(--green)}.pill.st-inprogress{background:#fff3e0;color:var(--amber)}.pill.st-review{background:#eef2ff;color:var(--blue)}.pill.st-blocked{background:#fdeaea;color:var(--red)}.pill.st-notstarted{background:#eef0f4;color:var(--muted)}.blockedItem{border-color:#f3c8c8!important;background:#fff8f8!important}.teamBlockHead{font-size:12px;font-weight:800;color:var(--red);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.pill.pr-high{background:#fdeaea;color:var(--red)}.pill.pr-medium{background:#fff3e0;color:var(--amber)}.pill.pr-low{background:#eef0f4;color:var(--muted)}
+.pill{display:inline-flex;align-items:center}.pIcon{flex-shrink:0}
 .attnGroup{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fbfcff}.attnGroup:last-child{margin-bottom:0}
 .attnGroupHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800}.attnGroupHead .attnTitle{flex:1;min-width:140px}
 .attnIcon{flex-shrink:0}
@@ -317,7 +319,7 @@ function renderDashboard(){
   const selList=selectedSprintPbis();
   const meta=sprintMetaFor(selectedSprint);
   kCommit.textContent=c+" SP";kPbis.textContent=selList.length?selList.length+" PBIs":(meta.historyPbis!=null?meta.historyPbis+" PBIs (from history)":"0 PBIs");kDone.textContent=d+" SP";kDonePct.textContent=pct+"% of commitment";kVelocity.textContent=v+" SP";kForecast.textContent=f+" SP";kRange.textContent=c?(f>=c?"Likely to meet commitment":(c-f)+" SP currently at risk"):"Add PBIs to forecast";
-  forecastBox.innerHTML=`<div class="metricRow"><div class="metric"><span class="label">Commit</span><b>${c}</b></div><div class="metric"><span class="label">Forecast</span><b>${f}</b></div><div class="metric"><span class="label">Rate</span><b>${c?Math.round(f/c*100):0}%</b></div></div><p class="${f>=c?'good':'warn'}">${f>=c?'Healthy forecast':(c-f)+' SP may carry over'}</p>`;
+  forecastBox.innerHTML=`<div class="metricRow"><div class="metric"><span class="label">Commit</span><b>${c}</b></div><div class="metric"><span class="label">Forecast</span><b>${f}</b></div><div class="metric"><span class="label">Rate</span><b>${c?Math.round(f/c*100):0}%</b></div></div><p class="${f>=c?'good':'warn'}">${icon(f>=c?'check':'warn')}${f>=c?'Healthy forecast':(c-f)+' SP may carry over'}</p>`;
   renderAttention();
   renderDashSprintOverview(); renderTeamCurrentWork(); renderTaskSnapshot(); renderFeatureTracking(); renderSprintTraceability();
  }
@@ -520,9 +522,34 @@ function clearPbiForm(){editId.value="";pId.value="";pDesc.value="";pTask.value=
 pbiForm.onsubmit=e=>{e.preventDefault();let p={id:pId.value.trim(),desc:pDesc.value.trim(),task:pTask.value.trim(),goal:pGoal.value.trim(),owner:pOwner.value.trim(),sp:+pSP.value,status:pStatus.value,priority:pPriority.value,progress:+pProgress.value,due:pDue.value,sprint:pSprint.value.trim()||data.sprint.name,carry:pCarry.value,feature:pFeature.value.trim(),release:pRelease.value.trim(),effort:+pEffort.value,confidence:pConfidence.value,productDoc:pProductDoc.value.trim(),sandboxDoc:pSandboxDoc.value.trim(),notes:pNotes.value};let i=data.pbis.findIndex(x=>x.id===editId.value);if(i>=0)data.pbis[i]=p;else data.pbis.push(p);save();clearPbiForm();renderPbis();renderDashboard()};
 function pbiHtml(p,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${p.id}</b>${statusPill(p.status)}</div><div style="margin-top:4px">${p.desc}</div>${p.task?`<div class="sub"><small>Task:</small> ${p.task}</div>`:""}${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="mobileGrid"><div><small>Owner</small><b>${p.owner}</b></div><div><small>Story Points</small><b>${p.sp} SP</b></div><div><small>Sprint Feature</small><b>${p.feature||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Effort %</small><b>${p.effort||0}%</b></div><div><small>Progress</small><b>${p.progress}%</b></div><div><small>Product Doc</small><b>${p.productDoc||"—"}</b></div><div><small>Sandbox Doc</small><b>${p.sandboxDoc||"—"}</b></div><div><small>Priority</small><b>${p.priority}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div>${bigSp(p.sp)?`<div class="wbsHint" style="margin-top:8px">💡 Consider breaking this work item into smaller tasks.</div>`:""}<div class="actions"><button class="btn secondary" onclick="editPbi(${i})">Edit</button><button class="btn danger" onclick="deletePbi(${i})">Delete</button></div></div>`}
 function bigSp(sp){return sp===13||sp===21}
+const ICON_PATHS={
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+ block:'<circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/>',
+ dashCircle:'<circle cx="12" cy="12" r="9" stroke-dasharray="3 3.4"/>',
+ warn:'<path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
+ cross:'<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>',
+ chevUp2:'<path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/>',
+ minus:'<path d="M5 12h14"/>',
+ chevDown1:'<path d="m6 9 6 6 6-6"/>'
+};
+function icon(name,size){
+ size=size||12;
+ const p=ICON_PATHS[name]||ICON_PATHS.dashCircle;
+ return `<svg class="pIcon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-right:3px">${p}</svg>`;
+}
+function iconForCls(cls){return {good:"check",bad:"cross",warn:"warn"}[cls]||""}
+function pillIcon(cls){const n=iconForCls(cls);return n?icon(n):""}
 function statusPill(status){
  const cls={"Done":"st-done","In Progress":"st-inprogress","Review":"st-review","Blocked":"st-blocked","Not Started":"st-notstarted"}[status]||"";
- return `<span class="pill ${cls}">${status}</span>`;
+ const ic={"Done":"check","In Progress":"clock","Review":"eye","Blocked":"block","Not Started":"dashCircle"}[status]||"dashCircle";
+ return `<span class="pill ${cls}">${icon(ic)}${status}</span>`;
+}
+function priorityPill(priority){
+ const cls={"High":"pr-high","Medium":"pr-medium","Low":"pr-low"}[priority]||"";
+ const ic={"High":"chevUp2","Medium":"minus","Low":"chevDown1"}[priority]||"minus";
+ return `<span class="pill ${cls}">${icon(ic)}${priority}</span>`;
 }
 const colFilters={pbi:{sprint:"",owner:"",feature:"",release:"",status:"",priority:""},daily:{date:"",sprint:""}};
 function pbiColValue(col,p){
@@ -573,7 +600,7 @@ function updateThFilterIndicators(table){
 function renderPbis(){
  const rows=data.pbis.map((p,i)=>({p,i})).filter(({p})=>Object.keys(colFilters.pbi).every(col=>!colFilters.pbi[col]||pbiColValue(col,p)===colFilters.pbi[col]));
  const filterVal=pbiFilterActive();
- pbiTable.innerHTML=rows.map(({p,i})=>`<tr><td><b>${p.id}</b></td><td><span class="pill${p.carry==="Yes"?" warn":""}">${p.sprint||"—"}${p.carry==="Yes"?" ↩":""}</span></td><td>${p.desc}</td><td>${p.task||"—"}</td><td>${p.owner}</td><td><span class="pill">${p.feature||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.productDoc||"—"}</td><td>${p.sandboxDoc||"—"}</td><td>${p.sp}${bigSp(p.sp)?` <span class="pill wbsPill" title="Consider breaking this work item into smaller tasks">Consider splitting</span>`:""}</td><td>${p.effort||0}%</td><td>${statusPill(p.status)}</td><td><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</td><td><span class="pill">${p.priority}</span></td><td><button class="btn secondary" onclick="editPbi(${i})">Edit</button> <button class="btn danger" onclick="deletePbi(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="15">${filterVal?"No tasks match the current filters.":"No tasks yet."}</td></tr>`;
+ pbiTable.innerHTML=rows.map(({p,i})=>`<tr><td><b>${p.id}</b></td><td><span class="pill${p.carry==="Yes"?" warn":""}">${p.sprint||"—"}${p.carry==="Yes"?" ↩":""}</span></td><td>${p.desc}</td><td>${p.task||"—"}</td><td>${p.owner}</td><td><span class="pill">${p.feature||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.productDoc||"—"}</td><td>${p.sandboxDoc||"—"}</td><td>${p.sp}${bigSp(p.sp)?` <span class="pill wbsPill" title="Consider breaking this work item into smaller tasks">Consider splitting</span>`:""}</td><td>${p.effort||0}%</td><td>${statusPill(p.status)}</td><td><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</td><td>${priorityPill(p.priority)}</td><td><button class="btn secondary" onclick="editPbi(${i})">Edit</button> <button class="btn danger" onclick="deletePbi(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="15">${filterVal?"No tasks match the current filters.":"No tasks yet."}</td></tr>`;
  pbiCards.innerHTML=rows.map(({p,i})=>pbiHtml(p,i)).join("")||`<div class='notice'>${filterVal?"No PBIs match the current filters.":"No PBIs yet. Add your first PBI above."}</div>`;
  updateThFilterIndicators("pbi");
 }
@@ -615,7 +642,7 @@ function renderTeamCurrentWork(){
   }
   const blocked=selectedSprintPbis().filter(p=>p.status==="Blocked");
   if(!blocked.length){blockedEl.innerHTML="";return;}
-  blockedEl.innerHTML=`<div class="teamBlockHead">Blocked — Needs Attention</div>`+blocked.map(p=>`<div class="mobileItem blockedItem"><div class="mobileItemTop"><b>${(p.owner&&p.owner.trim())||"Unassigned"}</b><span class="pill bad">Blocked</span></div><div style="margin-top:4px"><b>${p.id}</b> — ${p.desc}</div><div class="mobileGrid"><div><small>Feature</small><b>${p.feature||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div></div>${p.notes?`<div class="sub" style="margin-top:6px">${p.notes}</div>`:""}</div>`).join("");
+  blockedEl.innerHTML=`<div class="teamBlockHead">Blocked — Needs Attention</div>`+blocked.map(p=>`<div class="mobileItem blockedItem"><div class="mobileItemTop"><b>${(p.owner&&p.owner.trim())||"Unassigned"}</b><span class="pill bad">${pillIcon("bad")}Blocked</span></div><div style="margin-top:4px"><b>${p.id}</b> — ${p.desc}</div><div class="mobileGrid"><div><small>Feature</small><b>${p.feature||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div></div>${p.notes?`<div class="sub" style="margin-top:6px">${p.notes}</div>`:""}</div>`).join("");
 }
 function traceabilityData(list){
   const prioRank={High:0,Medium:1,Low:2};
@@ -642,13 +669,13 @@ function traceabilityData(list){
 }
 function traceabilityHtml(versions){
   const cls=s=>(s==="Done"||s==="Completed")?"good":s==="Blocked"?"bad":(s==="In Progress"||s==="Review")?"warn":"";
-  return versions.map((v,vi)=>`<details class="traceVersion" ${vi===0?"open":""}>
-<summary><span class="traceLabel">Version</span><b>${v.version}</b><span class="pill">${v.done}/${v.total} tasks done</span><span class="pill ${v.total&&v.done===v.total?"good":""}">${v.pct}%</span></summary>
+  return versions.map((v,vi)=>{const vPctCls=v.total&&v.done===v.total?"good":"";return `<details class="traceVersion" ${vi===0?"open":""}>
+<summary><span class="traceLabel">Version</span><b>${v.version}</b><span class="pill">${v.done}/${v.total} tasks done</span><span class="pill ${vPctCls}">${pillIcon(vPctCls)}${v.pct}%</span></summary>
 <div class="traceBody">${v.features.map(f=>`<details class="traceFeature">
-<summary><span class="traceLabel">Feature</span><b>${f.feature}</b><span class="pill ${cls(f.status)}">${f.status}</span><span class="pill">${f.done}/${f.total} PBIs done</span><span class="pill">${f.pct}%</span></summary>
-<div class="traceBody">${f.tasks.map(p=>`<div class="traceTask"><div class="traceTaskTop"><span><span class="traceLabel">PBI/Task</span> <b>${p.id}</b>${p.task?` — ${p.task}`:""}</span><span class="pill ${cls(p.status)}">${p.status}</span></div><div class="sub">${p.desc}${p.owner?` · ${p.owner}`:""}</div>${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="progress"><div class="bar" style="width:${p.progress}%"></div></div><div class="sub">Progress ${p.progress}% · Effort ${p.effort||0}%${bigSp(p.sp)?` · <span style="color:var(--amber)">Consider breaking this work item into smaller tasks</span>`:""}</div></div>`).join("")}</div>
+<summary><span class="traceLabel">Feature</span><b>${f.feature}</b><span class="pill ${cls(f.status)}">${pillIcon(cls(f.status))}${f.status}</span><span class="pill">${f.done}/${f.total} PBIs done</span><span class="pill">${f.pct}%</span></summary>
+<div class="traceBody">${f.tasks.map(p=>`<div class="traceTask"><div class="traceTaskTop"><span><span class="traceLabel">PBI/Task</span> <b>${p.id}</b>${p.task?` — ${p.task}`:""}</span><span class="pill ${cls(p.status)}">${pillIcon(cls(p.status))}${p.status}</span></div><div class="sub">${p.desc}${p.owner?` · ${p.owner}`:""}</div>${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="progress"><div class="bar" style="width:${p.progress}%"></div></div><div class="sub">Progress ${p.progress}% · Effort ${p.effort||0}%${bigSp(p.sp)?` · <span style="color:var(--amber)">Consider breaking this work item into smaller tasks</span>`:""}</div></div>`).join("")}</div>
 </details>`).join("")}</div>
-</details>`).join("");
+</details>`;}).join("");
 }
 function renderTraceability(){
   const el=document.getElementById("traceView");if(!el)return;
@@ -719,8 +746,8 @@ function renderFeatureTracking(){
  const rows=featureSummary(pbisForView());
  if(!rows.length){el.innerHTML=emptyState("No tasks yet. Set a Sprint Feature on a task in the PBIs tab to see it rolled up here.");return}
  const cls=s=>s==="Completed"?"good":s==="Blocked"?"bad":s==="In Progress"?"warn":"";
- el.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Sprint Feature</th><th>Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th><th>Status</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r.feature}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.remaining}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.pct}%"></div></div>${r.pct}%</div></td><td><span class="pill ${cls(r.status)}">${r.status}</span></td></tr>`).join("")}</tbody></table></div>
-<div class="mobileCards">${rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.feature}</b><span class="pill ${cls(r.status)}">${r.status}</span></div><div class="mobileGrid"><div><small>Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.remaining}</b></div><div><small>Progress</small><b>${r.pct}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.pct}%"></div></div></div>`).join("")}</div>`;
+ el.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Sprint Feature</th><th>Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th><th>Status</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r.feature}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.remaining}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.pct}%"></div></div>${r.pct}%</div></td><td><span class="pill ${cls(r.status)}">${pillIcon(cls(r.status))}${r.status}</span></td></tr>`).join("")}</tbody></table></div>
+<div class="mobileCards">${rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.feature}</b><span class="pill ${cls(r.status)}">${pillIcon(cls(r.status))}${r.status}</span></div><div class="mobileGrid"><div><small>Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.remaining}</b></div><div><small>Progress</small><b>${r.pct}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.pct}%"></div></div></div>`).join("")}</div>`;
 }
 function clearSpForm(){editSpId.value="";spActivity.value="";spSprint.value=data.sprint.name||"";spFeature.value="";spWeek.value="";spStatus.value="Planned";spActual.value=0;spCarry.value="No";spNotes.value=""}
 function renderSpFeatureOptions(){
@@ -743,9 +770,9 @@ function renderSprintPlan(){
  const planned=rows.length,inProgress=rows.filter(r=>r.status==="In Progress").length,completed=rows.filter(r=>r.status==="Completed").length,carried=rows.filter(r=>r.carry==="Yes").length;
  const sp=document.getElementById("spSummary");if(sp)sp.innerHTML=`<div class="metric"><span class="label">Planned</span><b>${planned}</b></div><div class="metric"><span class="label">In Progress</span><b>${inProgress}</b></div><div class="metric"><span class="label">Completed</span><b>${completed}</b></div><div class="metric"><span class="label">Carried Forward</span><b>${carried}</b></div>`;
  const table=document.getElementById("sprintPlanTable");
- if(table)table.innerHTML=rows.map(r=>`<tr><td><b>${r.activity}</b>${r._carriedFrom?`<div class="sub">↩ Carried from ${r._carriedFrom}</div>`:""}</td><td><span class="pill${r._carriedFrom?" warn":""}">${r._carriedFrom?selectedSprint:r.sprint||"—"}</span></td><td>${r.feature?`<span class="pill">${r.feature}</span>`:"—"}</td><td>${r.week||"—"}</td><td><span class="pill ${planCls(r.status)}">${r.status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.actual||0}%"></div></div>${r.actual||0}%</div></td><td><span class="pill ${r.carry==="Yes"?"warn":""}">${r.carry||"No"}</span></td><td>${r.notes||"—"}</td><td><button class="btn secondary" onclick="editSprintPlan(${r._i})">Edit</button> <button class="btn danger" onclick="deleteSprintPlan(${r._i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="9">No plan items for this sprint yet.</td></tr>`;
+ if(table)table.innerHTML=rows.map(r=>`<tr><td><b>${r.activity}</b>${r._carriedFrom?`<div class="sub">↩ Carried from ${r._carriedFrom}</div>`:""}</td><td><span class="pill${r._carriedFrom?" warn":""}">${r._carriedFrom?selectedSprint:r.sprint||"—"}</span></td><td>${r.feature?`<span class="pill">${r.feature}</span>`:"—"}</td><td>${r.week||"—"}</td><td><span class="pill ${planCls(r.status)}">${pillIcon(planCls(r.status))}${r.status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.actual||0}%"></div></div>${r.actual||0}%</div></td><td><span class="pill ${r.carry==="Yes"?"warn":""}">${r.carry||"No"}</span></td><td>${r.notes||"—"}</td><td><button class="btn secondary" onclick="editSprintPlan(${r._i})">Edit</button> <button class="btn danger" onclick="deleteSprintPlan(${r._i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="9">No plan items for this sprint yet.</td></tr>`;
  const cards=document.getElementById("sprintPlanCards");
- if(cards)cards.innerHTML=rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.activity}</b><span class="pill ${planCls(r.status)}">${r.status}</span></div><div class="sub">${r._carriedFrom?`${selectedSprint} · ↩ Carried from ${r._carriedFrom}`:(r.sprint||"No sprint")} · ${r.feature||"No linked feature/PBI"} · ${r.week||"No week set"}</div><div class="mobileGrid"><div><small>Progress</small><b>${r.actual||0}%</b></div><div><small>Carry Forward</small><b>${r.carry||"No"}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.actual||0}%"></div></div><div class="sub" style="margin-top:6px">${r.notes||"No notes"}</div><div class="actions"><button class="btn secondary" onclick="editSprintPlan(${r._i})">Edit</button><button class="btn danger" onclick="deleteSprintPlan(${r._i})">Delete</button></div></div>`).join("")||emptyState("No sprint plan items for this sprint yet. Add one above.");
+ if(cards)cards.innerHTML=rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.activity}</b><span class="pill ${planCls(r.status)}">${pillIcon(planCls(r.status))}${r.status}</span></div><div class="sub">${r._carriedFrom?`${selectedSprint} · ↩ Carried from ${r._carriedFrom}`:(r.sprint||"No sprint")} · ${r.feature||"No linked feature/PBI"} · ${r.week||"No week set"}</div><div class="mobileGrid"><div><small>Progress</small><b>${r.actual||0}%</b></div><div><small>Carry Forward</small><b>${r.carry||"No"}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.actual||0}%"></div></div><div class="sub" style="margin-top:6px">${r.notes||"No notes"}</div><div class="actions"><button class="btn secondary" onclick="editSprintPlan(${r._i})">Edit</button><button class="btn danger" onclick="deleteSprintPlan(${r._i})">Delete</button></div></div>`).join("")||emptyState("No sprint plan items for this sprint yet. Add one above.");
 }
 function editSprintPlan(i){const p=data.sprintPlan[i];editSpId.value=i;spActivity.value=p.activity||"";spSprint.value=p.sprint||"";spFeature.value=p.feature||"";spWeek.value=p.week||"";spStatus.value=p.status||"Planned";spActual.value=p.actual||0;spCarry.value=p.carry||"No";spNotes.value=p.notes||"";window.scrollTo({top:0,behavior:"smooth"})}
 function deleteSprintPlan(i){if(confirm("Delete this plan item?")){data.sprintPlan.splice(i,1);save();renderSprintPlan();renderDashboard()}}

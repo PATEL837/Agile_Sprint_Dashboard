@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Sprint Overview</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--text:#172033;--muted:#697386;--line:#e2e7ef;--blue:#365cff;--green:#159447;--amber:#c87500;--red:#d52d2d;--dark:#111827;--shadow:0 3px 14px rgba(17,24,39,.06)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+.top{background:var(--dark);color:#fff;padding:18px max(16px,calc((100vw - 1200px)/2));display:flex;justify-content:space-between;gap:18px;align-items:center;flex-shrink:0}
+.top h1{font-size:22px;margin:0}.top p{font-size:12px;color:#bdc5d3;margin:4px 0 0}
+.top .asOf{font-size:11px;color:#a7f3c1;white-space:nowrap;text-align:right}
+main{max-width:1200px;margin:auto;padding:20px 16px 40px;width:100%;flex:1 0 auto}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:13px}
+.label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:28px;font-weight:850;margin-top:5px}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+.kpi{border-left-width:4px;border-left-style:solid;border-left-color:var(--line)}.kpi.kpi-blue{border-left-color:var(--blue)}.kpi.kpi-green{border-left-color:var(--green)}.kpi.kpi-purple{border-left-color:#6b3fd6}.kpi.kpi-amber{border-left-color:var(--amber)}
+h2{font-size:16px;margin:0 0 4px}.desc{font-size:12px;color:var(--muted);margin-bottom:13px}.chartBox{height:260px;position:relative}
+canvas{max-width:100%}
+.sectionTitle{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:26px 0 10px}
+.sectionTitle:first-child{margin-top:0}
+.tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse;font-size:12px;min-width:640px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:10px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.progress{height:7px;background:#e9edf3;border-radius:99px;overflow:hidden;min-width:85px}.bar{height:100%;background:var(--blue);border-radius:99px}
+.pill{display:inline-flex;align-items:center;padding:4px 7px;border-radius:99px;background:#eef0f4;font-size:10px;font-weight:750}
+.pill.st-done{background:#e8f8ee;color:var(--green)}.pill.st-inprogress{background:#fff3e0;color:var(--amber)}.pill.st-review{background:#eef2ff;color:var(--blue)}.pill.st-blocked{background:#fdeaea;color:var(--red)}.pill.st-notstarted{background:#eef0f4;color:var(--muted)}
+.pill.pr-high{background:#fdeaea;color:var(--red)}.pill.pr-medium{background:#fff3e0;color:var(--amber)}.pill.pr-low{background:#eef0f4;color:var(--muted)}
+.pill.tag-blocked{background:#fdeaea;color:var(--red)}.pill.tag-atrisk{background:#fff3e0;color:var(--amber)}.pill.tag-decision{background:#eef2ff;color:var(--blue)}.pill.tag-clarify{background:#f2edff;color:#6b3fd6}.pill.tag-carry{background:#fdf6e8;color:#8a5a00}.pill.tag-review{background:#e8f8ee;color:#126b34}
+.pIcon{flex-shrink:0;margin-right:3px}
+.metricRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f7f8fb;border-radius:9px;padding:12px}.metric b{font-size:19px;display:block;margin-top:3px}
+.mobileCards{display:none}
+.mobileItem{border:1px solid var(--line);border-radius:9px;padding:11px;margin:8px 0}.mobileItemTop{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.mobileGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.mobileGrid small{display:block;color:var(--muted);font-size:10px}.mobileGrid b{font-size:12px}
+.emptyState{display:flex;align-items:center;gap:10px;padding:16px;border:1px dashed #cbd3df;border-radius:10px;color:var(--muted);font-size:12px}.emptyState svg{flex-shrink:0;opacity:.6}
+.attnGroup{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fbfcff}.attnGroup:last-child{margin-bottom:0}
+.attnGroupHead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800}.attnGroupHead .attnTitle{flex:1;min-width:140px}
+.attnIcon{flex-shrink:0}
+.attnItem{font-size:12px;color:var(--text);padding:7px 0 0 2px;border-top:1px solid var(--line);margin-top:7px}.attnItem:first-of-type{border-top:1px solid var(--line)}
+.winsList{display:flex;flex-direction:column;gap:8px}.winItem{display:flex;gap:8px;align-items:flex-start;font-size:12px}.winCheck{color:var(--green);font-weight:800}
+.releaseGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.releaseItem{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fbfcff;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.footNote{text-align:center;color:#b7bec9;font-size:10px;padding:18px 0 4px}
+.hidden{display:none!important}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .releaseGrid{grid-template-columns:1fr}
+ body{font-size:14px}.top{padding:14px}.top h1{font-size:19px}.top p{font-size:11px}
+ .grid4{grid-template-columns:repeat(2,1fr);gap:8px}.grid4 .card{padding:12px;margin-bottom:8px}.value{font-size:23px}main{padding:14px 10px 30px}.card{padding:13px;border-radius:10px}
+ .chartBox{height:230px}.metricRow{grid-template-columns:1fr 1fr 1fr;gap:6px}.metric{padding:9px}.metric b{font-size:16px}
+ .tableWrap{display:none}.mobileCards{display:block}
+}
+</style>
+</head>
+<body>
+<div class="top">
+ <div>
+  <h1 id="pageTitle">Sprint Overview</h1>
+  <p id="pageSub">Live delivery summary</p>
+ </div>
+ <div class="asOf" id="asOf"></div>
+</div>
+<main>
+
+<div id="loadingState" class="card"><div class="emptyState"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 3l9 5.5"/><path d="M3 8.5V19a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8.5"/></svg><span>Loading sprint data…</span></div></div>
+
+<div id="content" class="hidden">
+
+<div class="sectionTitle">Current Sprint</div>
+<div class="card">
+ <div id="sprintSummary" class="metricRow"></div>
+ <p class="sub" id="sprintDates"></p>
+ <p id="sprintGoal"></p>
+</div>
+
+<div class="grid4" id="sprintKpis"></div>
+
+<div class="grid2">
+ <div class="card">
+  <h2>Sprint Burndown</h2>
+  <div class="desc">Remaining story points vs. ideal pace.</div>
+  <div class="chartBox"><canvas id="burndown"></canvas></div>
+ </div>
+ <div class="card">
+  <h2>Task Status</h2>
+  <div class="desc">Current sprint tasks by status.</div>
+  <div class="chartBox"><canvas id="flow"></canvas></div>
+ </div>
+</div>
+
+<div class="card">
+ <h2>Sprint Feature Progress</h2>
+ <div class="desc">Roll-up of tasks by sprint feature.</div>
+ <div id="featureTracking"></div>
+</div>
+
+<div class="card">
+ <h2>Needs Attention</h2>
+ <div class="desc">Automatically surfaced items that may need a decision, clarification, or a dependency resolved.</div>
+ <div id="attentionBox"></div>
+</div>
+
+<div class="card">
+ <h2>Recent Wins</h2>
+ <div class="desc">Recently completed work.</div>
+ <div id="teamWins"></div>
+</div>
+
+<div class="sectionTitle">Program Overview</div>
+<div class="grid4" id="overallKpis"></div>
+
+<div class="grid2">
+ <div class="card">
+  <h2>Velocity History</h2>
+  <div class="desc">Planned vs. completed story points by sprint.</div>
+  <div class="chartBox"><canvas id="velocityChart"></canvas></div>
+ </div>
+ <div class="card">
+  <h2>Throughput</h2>
+  <div class="desc">Work items completed per sprint.</div>
+  <div class="chartBox"><canvas id="throughput"></canvas></div>
+ </div>
+</div>
+
+<div class="card">
+ <h2>Release Progress</h2>
+ <div class="desc">Feature completion by release / version.</div>
+ <div id="releaseProgress"></div>
+</div>
+
+</div>
+
+<div class="footNote">Sprint Overview · read-only summary</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+let data=null, charts={};
+
+function emptyState(msg){
+ return `<div class="emptyState"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 3l9 5.5"/><path d="M3 8.5V19a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V8.5"/><path d="M3 8.5h5.5a1 1 0 0 1 1 .8l.4 2a1 1 0 0 0 1 .8h2.2a1 1 0 0 0 1-.8l.4-2a1 1 0 0 1 1-.8H21"/></svg><span>${msg}</span></div>`;
+}
+const ICON_PATHS={
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+ block:'<circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/>',
+ dashCircle:'<circle cx="12" cy="12" r="9" stroke-dasharray="3 3.4"/>',
+ warn:'<path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
+ cross:'<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/>',
+ decision:'<path d="M5 3v18"/><path d="M5 4h11l-2.5 4L16 12H5"/>',
+ clarify:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 1.9-2.4 3.7"/><path d="M12 17h.01"/>',
+ carry:'<circle cx="12" cy="12" r="9"/><path d="M9 8l4 4-4 4"/>'
+};
+function icon(name,size){
+ size=size||12;
+ const p=ICON_PATHS[name]||ICON_PATHS.dashCircle;
+ return `<svg class="pIcon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+function iconForCls(cls){return {good:"check",bad:"cross",warn:"warn"}[cls]||""}
+function pillIcon(cls){const n=iconForCls(cls);return n?icon(n):""}
+function statusPill(status){
+ const cls={"Done":"st-done","In Progress":"st-inprogress","Review":"st-review","Blocked":"st-blocked","Not Started":"st-notstarted"}[status]||"";
+ const ic={"Done":"check","In Progress":"clock","Review":"eye","Blocked":"block","Not Started":"dashCircle"}[status]||"dashCircle";
+ return `<span class="pill ${cls}">${icon(ic)}${status}</span>`;
+}
+const ATTN_ICONS={
+ "tag-blocked":{color:"var(--red)",path:ICON_PATHS.block},
+ "tag-atrisk":{color:"var(--amber)",path:ICON_PATHS.warn},
+ "tag-decision":{color:"var(--blue)",path:ICON_PATHS.decision},
+ "tag-clarify":{color:"#6b3fd6",path:ICON_PATHS.clarify},
+ "tag-carry":{color:"#8a5a00",path:ICON_PATHS.carry},
+ "tag-review":{color:"#126b34",path:ICON_PATHS.eye}
+};
+function attnIcon(cls){
+ const i=ATTN_ICONS[cls]||{color:"var(--muted)",path:ICON_PATHS.dashCircle};
+ return `<svg class="attnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${i.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i.path}</svg>`;
+}
+
+function currentSprintPbis(){return (data.pbis||[]).filter(p=>(p.sprint||data.sprint.name)===data.sprint.name)}
+function commit(){return currentSprintPbis().reduce((a,p)=>a+Number(p.sp||0),0)}
+function doneSP(){return currentSprintPbis().filter(p=>p.status==="Done").reduce((a,p)=>a+Number(p.sp||0),0)}
+function avgVelocity(){let a=(data.history||[]).map(x=>+x.done);if(doneSP())a.push(doneSP());a=a.slice(-6);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0}
+function forecast(c,d){return Math.min(c,Math.max(d,avgVelocity()))}
+
+function featureSummary(list){
+ list=list||data.pbis||[];
+ const map={};
+ list.forEach(p=>{const f=(p.feature&&p.feature.trim())?p.feature.trim():"Unassigned";map[f]??={feature:f,tasks:[]};map[f].tasks.push(p)});
+ return Object.values(map).map(m=>{
+  const total=m.tasks.length, done=m.tasks.filter(p=>p.status==="Done").length, blocked=m.tasks.some(p=>p.status==="Blocked"), started=m.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+  let status="Not Started";
+  if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+  return {feature:m.feature,total,done,remaining:total-done,pct:total?Math.round(done/total*100):0,status};
+ }).sort((a,b)=>a.feature==="Unassigned"?1:b.feature==="Unassigned"?-1:a.feature.localeCompare(b.feature));
+}
+function versionSummary(){
+ const map={};
+ (data.pbis||[]).forEach(p=>{const v=(p.release&&p.release.trim())||"Unassigned";map[v]??={version:v,total:0,done:0};map[v].total++;if(p.status==="Done")map[v].done++});
+ return Object.values(map).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function attentionData(){
+ const today=new Date().toISOString().slice(0,10);
+ const pbis=currentSprintPbis();
+ const blocked=pbis.filter(p=>p.status==="Blocked");
+ const overdue=pbis.filter(p=>p.due&&p.due<today&&p.status!=="Done"&&p.status!=="Blocked");
+ const featuresBlocked=featureSummary(pbis).filter(f=>f.status==="Blocked");
+ const noProgress=pbis.filter(p=>p.status==="In Progress"&&Number(p.progress||0)===0);
+ const meta=data.sprint;
+ let daysLeft=null,elapsedRatio=null;
+ if(meta.start&&meta.end){
+  const total=Math.max(1,Math.floor((new Date(meta.end)-new Date(meta.start))/86400000)+1);
+  daysLeft=Math.ceil((new Date(meta.end)-new Date(today))/86400000);
+  elapsedRatio=Math.min(1,Math.max(0,1-(daysLeft/total)));
+ }
+ const carryForward=pbis.filter(p=>{
+  if(p.status==="Done")return false;
+  if(p.status==="Blocked")return true;
+  if(daysLeft!==null&&daysLeft<=3&&elapsedRatio!==null){
+   const expected=elapsedRatio*100;
+   return Number(p.progress||0)<expected-25;
+  }
+  return false;
+ });
+ const reviewWaiting=pbis.filter(p=>p.status==="Review");
+ const c=commit(),f=forecast(c,doneSP());
+ const forecastGap=c>f?{gap:c-f,commit:c,forecastVal:f}:null;
+ return {blocked,overdue,featuresBlocked,noProgress,carryForward,reviewWaiting,forecastGap};
+}
+
+function renderSprintSummary(){
+ document.getElementById("pageTitle").textContent=data.sprint.name?`${data.sprint.name} Overview`:"Sprint Overview";
+ sprintSummary.innerHTML=`<div class="metric"><span class="label">Sprint</span><b>${data.sprint.name||"—"}</b></div><div class="metric"><span class="label">Commitment</span><b>${commit()} SP</b></div><div class="metric"><span class="label">Team</span><b>${data.sprint.members||0} members</b></div>`;
+ sprintDates.textContent=`${data.sprint.start||"No start"} → ${data.sprint.end||"No end"}`;
+ sprintGoal.textContent=data.sprint.goal||"No sprint goal entered.";
+}
+function renderSprintKpis(){
+ const c=commit(),d=doneSP(),f=forecast(c,d);
+ sprintKpis.innerHTML=`<div class="card kpi kpi-blue"><div class="label">Commitment</div><div class="value">${c} SP</div><div class="sub">This sprint</div></div>
+<div class="card kpi kpi-green"><div class="label">Completed</div><div class="value">${d} SP</div><div class="sub">${c?Math.round(d/c*100):0}% of commitment</div></div>
+<div class="card kpi kpi-purple"><div class="label">Forecast</div><div class="value">${f} SP</div><div class="sub ${f>=c?"good":"warn"}">${icon(f>=c?"check":"warn")}${f>=c?"On track":`${c-f} SP may carry over`}</div></div>
+<div class="card kpi kpi-amber"><div class="label">Tasks Done</div><div class="value">${currentSprintPbis().filter(p=>p.status==="Done").length}/${currentSprintPbis().length}</div><div class="sub">This sprint</div></div>`;
+}
+function renderOverallKpis(){
+ const names=new Set((data.history||[]).map(h=>h.name));names.add(data.sprint.name);
+ const totalCommit=(data.history||[]).reduce((a,x)=>a+Number(x.commit||0),0)+commit();
+ const totalDone=(data.history||[]).reduce((a,x)=>a+Number(x.done||0),0)+doneSP();
+ const totalPbisDone=(data.history||[]).reduce((a,x)=>a+Number(x.pbis||0),0)+currentSprintPbis().filter(p=>p.status==="Done").length;
+ const v=versionSummary(),releasesShipped=v.filter(r=>r.total&&r.done>=r.total).length;
+ overallKpis.innerHTML=`<div class="card kpi kpi-blue"><div class="label">Total Commitment</div><div class="value">${totalCommit} SP</div><div class="sub">Across ${names.size} sprints</div></div>
+<div class="card kpi kpi-green"><div class="label">Total Completed</div><div class="value">${totalDone} SP</div><div class="sub">${totalCommit?Math.round(totalDone/totalCommit*100):0}% of total commitment</div></div>
+<div class="card kpi kpi-purple"><div class="label">Avg Velocity</div><div class="value">${avgVelocity()} SP</div><div class="sub">Rolling average</div></div>
+<div class="card kpi kpi-amber"><div class="label">PBIs Completed</div><div class="value">${totalPbisDone}</div><div class="sub">All-time</div></div>`;
+}
+function renderAttention(){
+ const el=document.getElementById("attentionBox");
+ const a=attentionData();
+ const groups=[];
+ if(a.forecastGap)groups.push({title:"Sprint forecast below commitment",tag:"Needs decision",cls:"tag-decision",items:[`Forecast is <b>${a.forecastGap.forecastVal} SP</b> against a <b>${a.forecastGap.commit} SP</b> commitment — a gap of <b>${a.forecastGap.gap} SP</b>.`]});
+ if(a.blocked.length)groups.push({title:"Blocked tasks",tag:"Blocked by dependency",cls:"tag-blocked",items:a.blocked.map(p=>`<b>${p.id}</b> — ${p.desc}${p.owner?` · ${p.owner}`:""}${p.notes?` — ${p.notes}`:""}`)});
+ if(a.featuresBlocked.length)groups.push({title:"Features with blocked work",tag:"Blocked by dependency",cls:"tag-blocked",items:a.featuresBlocked.map(f=>`<b>${f.feature}</b> — ${f.done}/${f.total} tasks done`)});
+ if(a.overdue.length)groups.push({title:"Overdue tasks",tag:"At risk",cls:"tag-atrisk",items:a.overdue.map(p=>`<b>${p.id}</b> — ${p.desc}${p.owner?` · ${p.owner}`:""} — due ${p.due}`)});
+ if(a.noProgress.length)groups.push({title:"PBIs with no progress",tag:"Needs clarification",cls:"tag-clarify",items:a.noProgress.map(p=>`<b>${p.id}</b> — ${p.desc}${p.owner?` · ${p.owner}`:""}`)});
+ if(a.carryForward.length)groups.push({title:"Work likely to carry forward",tag:"Carry-forward candidate",cls:"tag-carry",items:a.carryForward.map(p=>`<b>${p.id}</b> — ${p.desc}${p.owner?` · ${p.owner}`:""} — ${p.progress}% complete`)});
+ if(a.reviewWaiting.length)groups.push({title:"Tasks awaiting review",tag:"Awaiting review",cls:"tag-review",items:a.reviewWaiting.map(p=>`<b>${p.id}</b> — ${p.desc}${p.owner?` · ${p.owner}`:""}`)});
+ if(!groups.length){el.innerHTML=emptyState("Nothing needs attention right now.");return;}
+ el.innerHTML=groups.map(g=>`<div class="attnGroup"><div class="attnGroupHead">${attnIcon(g.cls)}<span class="attnTitle">${g.title}</span><span class="pill ${g.cls}">${g.tag}</span><span class="pill">${g.items.length}</span></div>${g.items.map(i=>`<div class="attnItem">${i}</div>`).join("")}</div>`).join("");
+}
+function renderTeamWins(){
+ const el=document.getElementById("teamWins");
+ const wins=[];
+ const allPbis=data.pbis||[];
+ allPbis.filter(p=>p.status==="Done").slice(-4).forEach(p=>wins.push(`<b>${p.id}</b> completed — ${p.desc}`));
+ featureSummary(allPbis).filter(f=>f.status==="Completed").forEach(f=>wins.push(`Feature <b>${f.feature}</b> fully delivered`));
+ (data.sprintPlan||[]).filter(p=>p.status==="Completed").slice(-3).forEach(p=>wins.push(`Plan item <b>${p.activity}</b> completed`));
+ const shown=wins.slice(-4).reverse();
+ el.innerHTML=shown.length?`<div class="winsList">${shown.map(w=>`<div class="winItem"><span class="winCheck">✓</span><span>${w}</span></div>`).join("")}</div>`:emptyState("No completions recorded yet.");
+}
+function renderFeatureTracking(){
+ const el=document.getElementById("featureTracking");
+ const rows=featureSummary(currentSprintPbis());
+ if(!rows.length){el.innerHTML=emptyState("No tasks yet for this sprint.");return}
+ const cls=s=>s==="Completed"?"good":s==="Blocked"?"bad":s==="In Progress"?"warn":"";
+ el.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Sprint Feature</th><th>Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th><th>Status</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${r.feature}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.remaining}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.pct}%"></div></div>${r.pct}%</div></td><td><span class="pill ${cls(r.status)}">${pillIcon(cls(r.status))}${r.status}</span></td></tr>`).join("")}</tbody></table></div>
+<div class="mobileCards">${rows.map(r=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.feature}</b><span class="pill ${cls(r.status)}">${pillIcon(cls(r.status))}${r.status}</span></div><div class="mobileGrid"><div><small>Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.remaining}</b></div><div><small>Progress</small><b>${r.pct}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.pct}%"></div></div></div>`).join("")}</div>`;
+}
+function renderReleaseProgress(){
+ const el=document.getElementById("releaseProgress");
+ const rows=data.releases||[];
+ if(!rows.length){el.innerHTML=emptyState("No release data yet.");return}
+ el.innerHTML=`<div class="releaseGrid">${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<div class="releaseItem"><div><b>${r.version}</b><div class="sub">${r.date||"No date"} · ${r.done}/${r.total} features</div><div class="progress" style="margin-top:6px;min-width:160px"><div class="bar" style="width:${pct}%"></div></div></div><div class="value" style="font-size:20px">${pct}%</div></div>`}).join("")}</div>`;
+}
+function renderCharts(){
+ const daily=(data.daily||[]).filter(d=>d.date).sort((a,b)=>a.date<b.date?-1:1);
+ const dates=daily.map(d=>d.date), remaining=daily.map(d=>+d.remaining);
+ const c=commit();
+ const days=dates.length||1;
+ const ideal=Array.from({length:days},(_,i)=>Math.round(c-(c*(i/(Math.max(1,days-1))))));
+ const bEl=document.getElementById("burndown");
+ if(charts.b)charts.b.destroy();
+ charts.b=new Chart(bEl,{type:"line",data:{labels:dates.length?dates:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true}}}});
+
+ const pbis=currentSprintPbis();
+ const sts=["Not Started","In Progress","Review","Done","Blocked"],vals=sts.map(s=>pbis.filter(p=>p.status===s).length),stsColors=["#9aa4b2","#c87500","#365cff","#159447","#d52d2d"];
+ const fEl=document.getElementById("flow");
+ if(charts.f)charts.f.destroy();
+ charts.f=new Chart(fEl,{type:"doughnut",data:{labels:sts,datasets:[{data:vals,backgroundColor:stsColors}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+
+ const h=data.history||[];
+ const labs=[...h.map(x=>x.name),data.sprint.name];
+ const planned=[...h.map(x=>+x.commit),commit()];
+ const completed=[...h.map(x=>+x.done),doneSP()];
+ const pctLine=labs.map((_,i)=>planned[i]?Math.round(completed[i]/planned[i]*100):0);
+ const vEl=document.getElementById("velocityChart");
+ if(charts.v)charts.v.destroy();
+ charts.v=new Chart(vEl,{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+
+ const tEl=document.getElementById("throughput");
+ if(charts.t)charts.t.destroy();
+ charts.t=new Chart(tEl,{type:"line",data:{labels:[...h.map(x=>x.name),data.sprint.name],datasets:[{label:"PBIs Completed",data:[...h.map(x=>x.pbis),currentSprintPbis().filter(p=>p.status==="Done").length],fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+}
+function renderAll(){
+ renderSprintSummary();renderSprintKpis();renderOverallKpis();renderAttention();renderTeamWins();renderFeatureTracking();renderReleaseProgress();renderCharts();
+}
+async function load(){
+ try{
+  const res=await fetch("../data/agile_dashboard_data.json",{cache:"no-store"});
+  if(!res.ok)throw new Error("Data not found");
+  const json=await res.json();
+  if(!json||!json.sprint||!Array.isArray(json.pbis))throw new Error("Invalid data file");
+  data=json;
+  data.history=data.history||[];data.releases=data.releases||[];data.sprintPlan=data.sprintPlan||[];data.daily=data.daily||[];
+  document.getElementById("loadingState").classList.add("hidden");
+  document.getElementById("content").classList.remove("hidden");
+  document.getElementById("asOf").textContent="Updated "+new Date().toLocaleString();
+  renderAll();
+ }catch(e){
+  document.getElementById("loadingState").innerHTML=emptyState("Sprint data isn't available right now. Please check back shortly.");
+ }
+}
+load();
+</script>
+</body>
+</html>
