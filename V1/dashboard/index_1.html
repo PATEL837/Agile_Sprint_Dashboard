@@ -106,7 +106,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 </div>
 <div class="grid2">
 <div class="card"><h2>Velocity Trend</h2><div class="desc">Planned vs completed story points, with velocity %</div><div class="chartBox"><canvas id="velocityChart"></canvas></div></div>
-<div class="card"><h2>PBI Flow</h2><div class="desc">Current sprint distribution</div><div class="chartBox"><canvas id="flow"></canvas></div></div>
+<div class="card"><h2>PBI Flow</h2><div class="desc">Status breakdown of PBIs/tasks in the active sprint only (PBIs tab) — not historical sprints</div><div class="chartBox"><canvas id="flow"></canvas></div></div>
 </div>
 
 <!-- 8. Needs Attention -->
@@ -186,7 +186,7 @@ footer button{flex:1;border:0;background:transparent;color:var(--muted);font-siz
 
 <section id="history" class="tab">
 <div class="card"><h2>Historical Sprint Velocity</h2><div class="desc">Completed sprint results improve forecasting.</div>
-<form id="historyForm"><div class="field"><label>Sprint</label><input id="hName" placeholder="Sprint 23" required></div><div class="field"><label>Committed SP</label><input id="hCommit" type="number" min="0" required></div><div class="field"><label>Completed SP</label><input id="hDone" type="number" min="0" required></div><div class="field"><label>PBIs Completed</label><input id="hPbis" type="number" min="0" required></div><div class="actions"><button class="btn primary">Add Sprint</button></div></form></div>
+<form id="historyForm"><div class="field"><label>Sprint</label><input id="hName" placeholder="Sprint 23" required></div><div class="field"><label>Committed SP</label><input id="hCommit" type="number" min="0" required></div><div class="field"><label>Completed SP</label><input id="hDone" type="number" min="0" required></div><div class="field"><label>PBIs Completed</label><input id="hPbis" type="number" min="0" required></div><div class="actions"><button class="btn primary" id="hSubmitBtn">Add Sprint</button><button type="button" class="btn secondary hidden" id="hCancelBtn" onclick="cancelHistoryEdit()">Cancel Edit</button></div></form></div>
 <div class="card"><div class="toolbar"><h2>Velocity History</h2><button class="btn danger" onclick="clearHistory()">Delete History</button></div><div class="tableWrap"><table><thead><tr><th>Sprint</th><th>Commit</th><th>Done</th><th>Achievement</th><th>PBIs</th><th>Action</th></tr></thead><tbody id="historyTable"></tbody></table></div><div id="historyCards" class="mobileCards"></div></div>
 </section>
 
@@ -322,12 +322,12 @@ function drawCharts(){
  const featDates=data.daily.filter(x=>x.featuresRemaining!==null&&x.featuresRemaining!==undefined);
  const fbEl=document.getElementById("featureBurndown");
  if(fbEl)charts.fb=new Chart(fbEl,{type:"line",data:{labels:featDates.map(x=>x.date),datasets:[{label:"Features Remaining",data:featDates.map(x=>x.featuresRemaining),tension:.2,borderColor:"#c87500",backgroundColor:"#c8750022",fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
- const sts=["Not Started","In Progress","Review","Done","Blocked"],vals=sts.map(s=>data.pbis.filter(p=>p.status===s).length);
- charts.f=new Chart(document.getElementById("flow"),{type:"doughnut",data:{labels:sts,datasets:[{data:vals}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+ const sts=["Not Started","In Progress","Review","Done","Blocked"],vals=sts.map(s=>data.pbis.filter(p=>p.status===s).length),stsColors=["#9aa4b2","#c87500","#365cff","#159447","#d52d2d"];
+ charts.f=new Chart(document.getElementById("flow"),{type:"doughnut",data:{labels:sts,datasets:[{data:vals,backgroundColor:stsColors}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
  const featRows=featureSummary(),fLabels=["Not Started","In Progress","Completed","Blocked"],fVals=fLabels.map(s=>featRows.filter(r=>r.status===s).length);
  const fdEl=document.getElementById("featureStatusDonut");
  if(fdEl)charts.fd=new Chart(fdEl,{type:"doughnut",data:{labels:fLabels,datasets:[{data:fVals,backgroundColor:["#9aa4b2","#365cff","#159447","#d52d2d"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}}}}});
- let h=data.history.slice(-6),labs=h.map(x=>x.name),planned=h.map(x=>x.commit),completed=h.map(x=>x.done);if(data.pbis.length){labs.push(data.sprint.name);planned.push(c);completed.push(doneSP())}
+ let h=data.history.slice(-6),labs=h.map(x=>x.name),planned=h.map(x=>x.commit),completed=h.map(x=>x.done);if(data.pbis.length){labs.push(data.sprint.name+" (Current)");planned.push(c);completed.push(doneSP())}
  const pctLine=planned.map((p,i)=>p?Math.round(completed[i]/p*100):0);
  charts.v=new Chart(document.getElementById("velocityChart"),{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
  charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:h.map(x=>x.name),datasets:[{label:"PBIs Completed",data:h.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
@@ -484,10 +484,21 @@ function renderDaily(){dailyTable.innerHTML=data.daily.map((x,i)=>`<tr><td>${x.d
 function deleteDaily(i){data.daily.splice(i,1);save();renderDaily();renderDashboard()}
 
 
-historyForm.onsubmit=e=>{e.preventDefault();data.history.push({name:hName.value.trim(),commit:+hCommit.value,done:+hDone.value,pbis:+hPbis.value});save();historyForm.reset();renderHistory();renderDashboard()};
-function historyHtml(x,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${x.name}</b><span class="pill">${x.done}/${x.commit} SP</span></div><div class="mobileGrid"><div><small>Achievement</small><b>${x.commit?Math.round(x.done/x.commit*100):0}%</b></div><div><small>PBIs</small><b>${x.pbis}</b></div></div><div class="actions"><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></div></div>`}
-function renderHistory(){historyTable.innerHTML=data.history.map((x,i)=>`<tr><td>${x.name}</td><td>${x.commit} SP</td><td>${x.done} SP</td><td>${x.commit?Math.round(x.done/x.commit*100):0}%</td><td>${x.pbis}</td><td><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="6">No history yet.</td></tr>`;historyCards.innerHTML=data.history.map(historyHtml).join("")||"<div class='notice'>No historical sprints yet.</div>"}
-function deleteHistory(i){data.history.splice(i,1);save();renderHistory();renderDashboard()}
+let historyEditIndex=null;
+historyForm.onsubmit=e=>{
+ e.preventDefault();
+ const obj={name:hName.value.trim(),commit:+hCommit.value,done:+hDone.value,pbis:+hPbis.value};
+ let i=historyEditIndex;
+ if(i===null)i=data.history.findIndex(x=>x.name.trim().toLowerCase()===obj.name.toLowerCase());
+ if(i>=0)data.history[i]=obj;else data.history.push(obj);
+ historyEditIndex=null;hSubmitBtn.textContent="Add Sprint";hCancelBtn.classList.add("hidden");
+ save();historyForm.reset();renderHistory();renderDashboard()
+};
+function editHistory(i){const x=data.history[i];hName.value=x.name;hCommit.value=x.commit;hDone.value=x.done;hPbis.value=x.pbis;historyEditIndex=i;hSubmitBtn.textContent="Update Sprint";hCancelBtn.classList.remove("hidden");hName.focus()}
+function cancelHistoryEdit(){historyEditIndex=null;historyForm.reset();hSubmitBtn.textContent="Add Sprint";hCancelBtn.classList.add("hidden")}
+function historyHtml(x,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${x.name}</b><span class="pill">${x.done}/${x.commit} SP</span></div><div class="mobileGrid"><div><small>Achievement</small><b>${x.commit?Math.round(x.done/x.commit*100):0}%</b></div><div><small>PBIs</small><b>${x.pbis}</b></div></div><div class="actions"><button class="btn secondary" onclick="editHistory(${i})">Edit</button><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></div></div>`}
+function renderHistory(){historyTable.innerHTML=data.history.map((x,i)=>`<tr><td>${x.name}</td><td>${x.commit} SP</td><td>${x.done} SP</td><td>${x.commit?Math.round(x.done/x.commit*100):0}%</td><td>${x.pbis}</td><td><button class="btn secondary" onclick="editHistory(${i})">Edit</button> <button class="btn danger" onclick="deleteHistory(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="6">No history yet.</td></tr>`;historyCards.innerHTML=data.history.map(historyHtml).join("")||"<div class='notice'>No historical sprints yet.</div>"}
+function deleteHistory(i){if(historyEditIndex===i)cancelHistoryEdit();data.history.splice(i,1);save();renderHistory();renderDashboard()}
 function clearHistory(){if(confirm("Delete all history?")){data.history=[];save();renderHistory();renderDashboard()}}
 
 function downloadBlob(name,text,type){let a=document.createElement("a"),blob=new Blob([text],{type}),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
