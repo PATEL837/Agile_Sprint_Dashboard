@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Agile Team Delivery Dashboard - Overview</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--text:#172033;--muted:#697386;--line:#e2e7ef;--blue:#365cff;--green:#159447;--amber:#c87500;--red:#d52d2d;--dark:#111827;--shadow:0 3px 14px rgba(17,24,39,.06)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+button{cursor:pointer;font:inherit}
+.top{background:var(--dark);color:white;padding:18px max(16px,calc((100vw - 1480px)/2));display:flex;justify-content:space-between;gap:18px;align-items:center;flex-shrink:0}
+.top h1{font-size:22px;margin:0}.top p{font-size:12px;color:#bdc5d3;margin:4px 0 0}.topRight{display:flex;align-items:center;gap:8px}
+.saveDot{font-size:11px;color:#a7f3c1;white-space:nowrap}
+main{max-width:1480px;margin:auto;padding:18px 16px 30px;width:100%;flex:1 0 auto}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:13px}.label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:28px;font-weight:850;margin-top:5px}.sub{font-size:12px;color:var(--muted);margin-top:3px}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+.winsList{display:flex;flex-direction:column}
+.winItem{display:flex;align-items:flex-start;gap:11px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.winItem:last-child{border-bottom:none;padding-bottom:2px}
+.winCheck{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.winTitle{font-size:13px;font-weight:700;color:var(--text);line-height:1.35}
+.winSub{font-size:11.5px;color:var(--muted);margin-top:1px;line-height:1.3}
+h2{font-size:16px;margin:0 0 4px}.desc{font-size:12px;color:var(--muted);margin-bottom:13px}.chartBox{height:280px;position:relative}
+canvas{max-width:100%}
+.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:750;min-height:42px}.primary{background:var(--blue);color:#fff}.secondary{background:#edf0f5;color:#273044}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.toolbar h2{margin:0}
+.tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:10px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.progress{height:7px;background:#e9edf3;border-radius:99px;overflow:hidden;min-width:85px}.bar{height:100%;background:var(--blue);border-radius:99px}.pill{display:inline-block;padding:4px 7px;border-radius:99px;background:#eef0f4;font-size:10px;font-weight:750}
+.metricRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f7f8fb;border-radius:9px;padding:12px}.metric b{font-size:19px;display:block;margin-top:3px}
+.mobileCards{display:none}
+.notice{background:#eef2ff;color:#3047a5;border-radius:9px;padding:11px 12px;font-size:12px;margin-bottom:13px}
+.creditWrap{border-top:1px solid var(--line);background:transparent;margin-top:6px;flex-shrink:0}
+.credit{max-width:1480px;margin:0 auto;padding:12px 16px 18px;text-align:center;color:#b7bec9;font-size:10px;font-weight:400;letter-spacing:.01em;background:transparent}.credit strong{font-weight:400;color:inherit}
+.hidden{display:none!important}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+ body{font-size:14px}.top{padding:14px 14px 12px}.top h1{font-size:19px}.top p{font-size:11px}
+ .grid4{grid-template-columns:repeat(2,1fr);gap:8px}.grid4 .card{padding:12px;margin-bottom:8px}.value{font-size:23px}main{padding:12px 10px 20px}.card{padding:13px;border-radius:10px}
+ .chartBox{height:245px}.metricRow{grid-template-columns:1fr 1fr 1fr;gap:6px}.metric{padding:9px}.metric b{font-size:16px}
+ .tableWrap{display:none}.mobileCards{display:block}.mobileItem{border:1px solid var(--line);border-radius:9px;padding:11px;margin:8px 0}.mobileItemTop{display:flex;justify-content:space-between;gap:8px}.mobileGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.mobileGrid small{display:block;color:var(--muted);font-size:10px}.mobileGrid b{font-size:12px}
+}
+.doc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;background:#f0f3f8;padding:4px 6px;border-radius:6px}.emptyState{padding:16px;border:1px dashed #cbd3df;border-radius:10px;color:var(--muted);font-size:12px}.printBtn{background:#111827;color:#fff}.miniTable table{min-width:900px}.statusDot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:#9aa4b2}.statusDot.active{background:var(--blue)}.statusDot.done{background:var(--green)}.statusDot.blocked{background:var(--red)}
+.moreTasks{background:#edf1ff;color:#2947c8}.blockedItem{border-color:#f3c8c8!important;background:#fff8f8!important}.teamBlockHead{font-size:12px;font-weight:800;color:var(--red);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.traceVersion{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fbfcff}.traceVersion>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800}.traceVersion>summary::-webkit-details-marker{display:none}.traceVersion>summary::before{content:"▸";color:var(--muted);font-size:11px}.traceVersion[open]>summary::before{content:"▾"}
+.traceStory{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin:8px 0 0;background:#fff}.traceStory>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;font-size:13px}.traceStory>summary::-webkit-details-marker{display:none}.traceStory>summary::before{content:"▸";color:var(--muted);font-size:10px}.traceStory[open]>summary::before{content:"▾"}
+.traceBody{padding-left:16px;margin-top:8px}.traceLabel{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.traceTask{border-left:2px solid var(--line);padding:6px 0 6px 10px;margin:6px 0}.traceTaskTop{display:flex;justify-content:space-between;align-items:center;gap:8px}.traceTask .progress{margin-top:5px}
+@media print{.top,.printBtn,.noPrint{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top">
+<div><h1>Agile Team Delivery Dashboard</h1><p>Team Sprint Control Center - Overview · LTTS × BioMérieux</p></div>
+<div class="topRight"><span class="saveDot" id="saveState">● Loading…</span></div>
+</header>
+<main>
+<section id="dashboard">
+
+<!-- 1. Sprint Overview + top-line KPIs -->
+<div class="card">
+<div class="toolbar"><div><h2>Sprint Overview</h2><div class="desc" id="dashSprintMeta">No dates set</div></div><button class="btn printBtn noPrint" onclick="printDashboard()">🖨 Print Sprint Report</button></div>
+<div id="dashSprintOverview"></div>
+<div class="grid4" style="margin-top:13px">
+<div class="card"><div class="label">Commitment</div><div class="value" id="kCommit">0 SP</div><div class="sub" id="kPbis">0 PBIs</div></div>
+<div class="card"><div class="label">Completed</div><div class="value" id="kDone">0 SP</div><div class="sub" id="kDonePct">0%</div></div>
+<div class="card"><div class="label">Velocity</div><div class="value" id="kVelocity">0 SP</div><div class="sub">Rolling average</div></div>
+<div class="card"><div class="label">Forecast</div><div class="value" id="kForecast">0 SP</div><div class="sub" id="kRange">No commitment</div></div>
+</div>
+</div>
+
+<!-- 2. Release Progress -->
+<div class="card">
+<div class="toolbar"><div><h2>Software Version / Release Progress</h2><div class="desc">Tasks per release version and sprint, calculated live from this sprint's PBI/task list.</div></div></div>
+<div id="versionProgress"></div>
+</div>
+
+<!-- 3-7. Charts, kept together -->
+<div class="grid2">
+<div class="card"><h2>Sprint Burndown</h2><div class="desc">Daily remaining story points</div><div class="chartBox"><canvas id="burndown"></canvas></div></div>
+<div class="card"><h2>Features Burndown - All Sprint History</h2><div class="desc">Total features remaining, from the start of Sprint 1 through the latest sprint</div><div class="chartBox"><canvas id="featureBurndown"></canvas></div></div>
+</div>
+<div class="grid2">
+<div class="card"><h2>Velocity Trend</h2><div class="desc">Planned vs completed story points across all sprint history, with velocity %</div><div class="chartBox"><canvas id="velocityChart"></canvas></div></div>
+<div class="card"><h2>Complete List of Stories / PBI Flow</h2><div class="desc">Current sprint task status distribution</div><div class="chartBox"><canvas id="flow"></canvas></div></div>
+</div>
+<div class="grid2">
+<div class="card"><h2>Completion Trend</h2><div class="desc">PBIs completed per sprint</div><div class="chartBox"><canvas id="throughput"></canvas></div></div>
+<div class="card"><h2>Recent Wins</h2><div class="desc">Latest completions across the sprint</div><div id="teamWins"></div></div>
+</div>
+
+<!-- 8. What the team is working on -->
+<div class="card">
+<div class="toolbar"><div><h2>Current Active Work Items</h2><div class="desc">Grouped by owner - current task, story, version, and progress.</div></div></div>
+<div class="tableWrap"><table><thead><tr><th>Team Member</th><th>PBI/Task ID</th><th>Task</th><th>Story</th><th>Version</th><th>Status</th><th>Progress</th></tr></thead><tbody id="teamCurrentWorkTable"></tbody></table></div>
+<div id="teamCurrentWorkCards" class="mobileCards"></div>
+<div id="teamBlockedWork"></div>
+</div>
+
+<!-- 9. Sprint Task Snapshot -->
+<div class="card">
+<div class="toolbar"><div><h2>Sprint Task Snapshot</h2><div class="desc">Description, product document and sandbox document are visible together.</div></div></div>
+<div class="tableWrap miniTable"><table><thead><tr><th>Task / PBI</th><th>Description</th><th>Task</th><th>Owner</th><th>Product Doc</th><th>Sandbox Doc</th><th>SP</th><th>Effort %</th><th>Status</th><th>Progress</th></tr></thead><tbody id="taskSnapshot"></tbody></table></div>
+<div id="taskSnapshotCards" class="mobileCards"></div>
+</div>
+
+<div class="card">
+<div class="toolbar"><div><h2>Traceability: Version → Story → PBI → Status</h2><div class="desc">Expand a version to see its stories, expand a story to see the PBIs/tasks that make it up, and their status and progress.</div></div></div>
+<div id="traceView"></div>
+</div>
+</section>
+</main>
+<div class="creditWrap"><div class="credit"><div>Agile Team Delivery Dashboard - Overview</div><div style="margin-top:3px">Created & Developed by Dixit Bharatkumar Patel, PhD · LTTS</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const empty=()=>({sprint:{name:"Sprint 1",start:"",end:"",members:11,goal:""},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]});
+let data=empty(), charts={};
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function toDMY(iso){
+ if(!iso)return "";
+ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+ if(!m)return iso;
+ const mi=+m[2]-1;
+ return m[3]+(MONTHS[mi]||"")+m[1];
+}
+function fromDMY(s){
+ if(!s)return "";
+ s=String(s).trim();
+ if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+ const m=/^(\d{2})([A-Za-z]{3})(\d{4})$/.exec(s);
+ if(!m)return s;
+ const mi=MONTHS.findIndex(x=>x.toLowerCase()===m[2].toLowerCase());
+ if(mi<0)return s;
+ return `${m[3]}-${String(mi+1).padStart(2,"0")}-${m[1]}`;
+}
+const fmtDate=toDMY;
+function normalizeData(){
+  data.sprint=data.sprint||empty().sprint;
+  data.pbis=Array.isArray(data.pbis)?data.pbis:[];
+  data.daily=Array.isArray(data.daily)?data.daily:[];
+  data.history=Array.isArray(data.history)?data.history:[];
+  data.releases=Array.isArray(data.releases)?data.releases:[];
+  data.sprintPlan=Array.isArray(data.sprintPlan)?data.sprintPlan:[];
+  if(!data.sprintPlan.length&&Array.isArray(data.weeklyPlan)&&data.weeklyPlan.length){
+    data.sprintPlan=data.weeklyPlan.map(w=>({activity:w.plan||"",story:"",week:w.week||"",status:(Number(w.actual||0)>=100?"Completed":(Number(w.actual||0)>0?"In Progress":"Planned")),actual:Number(w.actual||0),carry:(Number(w.carry||0)>0?"Yes":"No"),notes:w.notes||""}));
+  }
+  delete data.weeklyPlan;
+  data.pbis.forEach(p=>{if(p.status==="Done")p.status="Completed"});
+  data.pbis.forEach(p=>{p.story=(p.story||p.feature||p.storyId||p.featureId||"").trim();delete p.storyId;delete p.feature;delete p.featureId;p.release=p.release||"";p.effort=Number(p.effort||0);p.confidence=p.confidence||"High"});
+  data.pbis.forEach(p=>{p.productDoc=p.productDoc||"";p.sandboxDoc=p.sandboxDoc||"";p.progress=Number(p.progress||0)});
+  data.pbis.forEach(p=>{p.goal=p.goal||"";p.task=p.task||""});
+  data.sprintPlan.forEach(p=>{p.story=(p.story||p.feature||"").trim();delete p.feature});
+  data.daily.forEach(x=>{const legacy=x.featuresRemaining??x.storiesRemaining;x.featuresRemaining=(legacy===null||legacy===undefined||legacy==="")?null:Number(legacy);delete x.storiesRemaining});
+  data.history.forEach(x=>{x.featuresCompleted=Number(x.featuresCompleted||0);x.featuresRemaining=Number(x.featuresRemaining||0);delete x.stories});
+  data.sprint.start=fromDMY(data.sprint.start);data.sprint.end=fromDMY(data.sprint.end);
+  data.pbis.forEach(p=>{p.due=fromDMY(p.due)});
+  data.daily.forEach(x=>{x.date=fromDMY(x.date)});
+  data.releases.forEach(r=>{r.date=fromDMY(r.date)});
+  delete data.capacity; delete data.sprint.hours; delete data.sprint.holiday; delete data.sprint.pto; delete data.sprint.other;
+}
+function commit(){return data.pbis.reduce((a,p)=>a+Number(p.sp||0),0)}
+function pbiDoneSP(){return data.pbis.filter(p=>p.status==="Completed").reduce((a,p)=>a+Number(p.sp||0),0)}
+function doneSP(){const h=data.history.find(x=>x.name===data.sprint.name);return h?Number(h.done||0):pbiDoneSP()}
+function avgVelocity(){let a=data.history.filter(x=>x.name!==data.sprint.name).map(x=>+x.done);if(doneSP())a.push(doneSP());a=a.slice(-6);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0}
+function forecast(){return Math.min(commit(),Math.max(doneSP(),avgVelocity()))}
+function sprintDays(){if(!data.sprint.start||!data.sprint.end)return 10;return Math.max(1,Math.floor((new Date(data.sprint.end)-new Date(data.sprint.start))/86400000)+1)}
+function destroy(k){if(charts[k])charts[k].destroy()}
+function bigSp(sp){return sp===13||sp===21}
+function renderDashboard(){
+ const c=commit(),d=doneSP(),pct=c?Math.round(d/c*100):0,v=avgVelocity(),f=forecast();
+ kCommit.textContent=c+" SP";kPbis.textContent=data.pbis.length+" PBIs";kDone.textContent=d+" SP";kDonePct.textContent=pct+"% of commitment";kVelocity.textContent=v+" SP";kForecast.textContent=f+" SP";kRange.textContent=c?(f>=c?"Likely to meet commitment":(c-f)+" SP currently at risk"):"Add PBIs to forecast";
+ renderDashSprintOverview(); renderTeamCurrentWork(); renderTaskSnapshot(); renderVersionProgress(); renderTraceability(); renderTeamWins(); drawCharts();
+}
+function renderDashSprintOverview(){
+ const c=commit(),d=doneSP(),pct=c?Math.round(d/c*100):0;
+ const meta=document.getElementById("dashSprintMeta");if(meta)meta.textContent=(data.sprint.start?fmtDate(data.sprint.start):"No start")+" → "+(data.sprint.end?fmtDate(data.sprint.end):"No end");
+ const el=document.getElementById("dashSprintOverview");if(!el)return;
+ el.innerHTML=`<div class="metricRow"><div class="metric"><span class="label">Sprint</span><b>${data.sprint.name||"Untitled"}</b></div><div class="metric"><span class="label">Overall Progress</span><b>${pct}%</b></div><div class="metric"><span class="label">Commitment</span><b>${c} SP</b></div></div><div class="progress" style="margin-top:10px"><div class="bar" style="width:${pct}%"></div></div><p style="margin-top:10px">${data.sprint.goal||"No sprint goal entered."}</p>`;
+}
+function renderTeamWins(){
+ const el=document.getElementById("teamWins");if(!el)return;
+ const wins=[];
+ data.pbis.filter(p=>p.status==="Completed").forEach(p=>wins.push({title:`${p.id} completed`,sub:p.desc}));
+ storySummary().filter(f=>f.status==="Completed").forEach(f=>wins.push({title:`Story "${f.story}" delivered`,sub:`${f.done}/${f.total} tasks done`}));
+ if(data.pbis.length&&data.pbis.every(p=>p.status==="Completed"))wins.push({title:`Sprint ${data.sprint.name} completed`,sub:`${data.pbis.length} PBIs delivered`});
+ data.sprintPlan.filter(p=>p.status==="Completed").forEach(p=>wins.push({title:p.activity,sub:p.story||"Plan item"}));
+ const top=wins.slice(-5).reverse();
+ el.innerHTML=top.length?`<div class="winsList">${top.map(w=>`<div class="winItem"><span class="winCheck">✓</span><div class="winText"><div class="winTitle">${w.title}</div>${w.sub?`<div class="winSub">${w.sub}</div>`:""}</div></div>`).join("")}</div>`:"<div class='emptyState'>No completions recorded yet.</div>";
+}
+function versionSummary(){
+ const map={};
+ data.pbis.forEach(p=>{const v=(p.release&&p.release.trim())?p.release.trim():"Unassigned";map[v]??={version:v,total:0,done:0};map[v].total++;if(p.status==="Completed")map[v].done++});
+ return Object.values(map).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function sprintNumber(){ // derive a short "Sprint #" label from the Sprint Name (e.g. "Sprint 24" -> "24")
+ const m=/(\d+)/.exec(data.sprint.name||"");
+ return m?m[1]:(data.sprint.name||"-");
+}
+function renderVersionProgress(){
+ const el=document.getElementById("versionProgress");if(!el)return;
+ const rows=versionSummary();
+ const sp=sprintNumber();
+ if(!rows.length){el.innerHTML="<div class='emptyState'>No versions yet.</div>";return}
+ el.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Sprint #</th><th>Version</th><th>Total Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th></tr></thead><tbody>${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<tr><td><span class="pill">${sp}</span></td><td><b>${r.version}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.total-r.done}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress">${'<div class="bar" style="width:'+pct+'%"></div>'}</div>${pct}%</div></td></tr>`}).join("")}</tbody></table></div>
+<div class="mobileCards">${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<div class="mobileItem"><div class="mobileItemTop"><b>${r.version}</b><span class="pill">${pct}%</span></div><div class="mobileGrid"><div><small>Sprint #</small><b>${sp}</b></div><div><small>Total Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.total-r.done}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${pct}%"></div></div></div>`}).join("")}</div>`;
+}
+function drawCharts(){
+ destroy("b");destroy("f");destroy("v");destroy("t");destroy("fb");
+ const n=sprintDays(),c=commit(), dates=data.daily.map(x=>x.date), dateLabels=dates.map(fmtDate), remaining=data.daily.map(x=>x.remaining), ideal=Array.from({length:Math.max(n,dates.length,2)},(_,i)=>Math.max(0,c-(c*i/(Math.max(n,dates.length,2)-1))));
+ charts.b=new Chart(document.getElementById("burndown"),{type:"line",data:{labels:dates.length?dateLabels:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{x:{ticks:{autoSkip:false,maxRotation:60,minRotation:dates.length>8?60:0,font:{size:10}}},y:{beginAtZero:true}}}});
+ const histSorted=data.history.filter(x=>x.name!==data.sprint.name).slice(-6);
+ const fbEl=document.getElementById("featureBurndown");
+ let fbLabels=[],fbVals=[];
+ if(data.history.length){
+  const start=Number(data.history[0].featuresRemaining||0)+Number(data.history[0].featuresCompleted||0);
+  fbLabels.push("Start");fbVals.push(start);
+  data.history.forEach(x=>{fbLabels.push(x.name);fbVals.push(Number(x.featuresRemaining||0))});
+ }
+ if(fbEl)charts.fb=new Chart(fbEl,{type:"line",data:{labels:fbLabels,datasets:[{label:"Features Remaining",data:fbVals,tension:.2,borderColor:"#c87500",backgroundColor:"#c8750022",fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+ const sts=["Not Started","In Progress","Review","Completed","Blocked"],vals=sts.map(s=>data.pbis.filter(p=>p.status===s).length);
+ charts.f=new Chart(document.getElementById("flow"),{type:"doughnut",data:{labels:sts,datasets:[{data:vals,backgroundColor:["#9aa4b2","#f5a623","#365cff","#159447","#d52d2d"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+ let labs=[...histSorted.map(x=>x.name),data.sprint.name],planned=[...histSorted.map(x=>Number(x.commit||0)),c],completed=[...histSorted.map(x=>Number(x.done||0)),doneSP()];
+ const pctLine=planned.map((p,i)=>p?Math.round(completed[i]/p*100):0);
+ charts.v=new Chart(document.getElementById("velocityChart"),{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+ charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:histSorted.map(x=>x.name),datasets:[{label:"PBIs Completed",data:histSorted.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+}
+function storySummary(){
+ const map={};
+ data.pbis.forEach(p=>{const f=(p.story&&p.story.trim())?p.story.trim():"Unassigned";map[f]??={story:f,tasks:[]};map[f].tasks.push(p)});
+ return Object.values(map).map(m=>{
+  const total=m.tasks.length, done=m.tasks.filter(p=>p.status==="Completed").length, blocked=m.tasks.some(p=>p.status==="Blocked"), started=m.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+  let status="Not Started";
+  if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+  return {story:m.story,total,done,remaining:total-done,pct:total?Math.round(done/total*100):0,status};
+ }).sort((a,b)=>a.story==="Unassigned"?1:b.story==="Unassigned"?-1:a.story.localeCompare(b.story));
+}
+function traceabilityData(){
+  const prioRank={High:0,Medium:1,Low:2};
+  const vmap={};
+  data.pbis.forEach(p=>{
+    const v=(p.release&&p.release.trim())||"Unassigned";
+    const f=(p.story&&p.story.trim())||"Unassigned";
+    vmap[v]??={version:v,fmap:{}};
+    vmap[v].fmap[f]??={story:f,tasks:[]};
+    vmap[v].fmap[f].tasks.push(p);
+  });
+  return Object.values(vmap).map(v=>{
+    const stories=Object.values(v.fmap).map(f=>{
+      const total=f.tasks.length, done=f.tasks.filter(p=>p.status==="Completed").length, blocked=f.tasks.some(p=>p.status==="Blocked");
+      const started=f.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+      let status="Not Started";
+      if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+      f.tasks.sort((a,b)=>(prioRank[a.priority]??9)-(prioRank[b.priority]??9)||b.progress-a.progress);
+      return {story:f.story,total,done,pct:total?Math.round(done/total*100):0,status,tasks:f.tasks};
+    }).sort((a,b)=>a.story==="Unassigned"?1:b.story==="Unassigned"?-1:a.story.localeCompare(b.story));
+    const total=stories.reduce((a,f)=>a+f.total,0), done=stories.reduce((a,f)=>a+f.done,0);
+    return {version:v.version,total,done,pct:total?Math.round(done/total*100):0,stories};
+  }).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function renderTraceability(){
+  const el=document.getElementById("traceView");if(!el)return;
+  const versions=traceabilityData();
+  if(!versions.length){el.innerHTML="<div class='emptyState'>No tasks yet.</div>";return;}
+  const cls=s=>s==="Completed"?"good":s==="Blocked"?"bad":(s==="In Progress"||s==="Review")?"warn":"";
+  const sp=sprintNumber();
+  el.innerHTML=versions.map((v,vi)=>`<details class="traceVersion" ${vi===0?"open":""}>
+<summary><span class="traceLabel">Sprint #</span><b>${sp}</b><span class="traceLabel">Version</span><b>${v.version}</b><span class="pill">${v.done}/${v.total} tasks done</span><span class="pill ${v.total&&v.done===v.total?"good":""}">${v.pct}%</span></summary>
+<div class="traceBody">${v.stories.map(f=>`<details class="traceStory">
+<summary><span class="traceLabel">Story</span><b>${f.story}</b><span class="pill ${cls(f.status)}">${f.status}</span><span class="pill">${f.done}/${f.total} PBIs done</span><span class="pill">${f.pct}%</span></summary>
+<div class="traceBody">${f.tasks.map(p=>`<div class="traceTask"><div class="traceTaskTop"><span><span class="traceLabel">PBI/Task</span> <b>${p.id}</b>${p.task?` - ${p.task}`:""}</span><span class="pill ${cls(p.status)}">${p.status}</span></div><div class="sub">${p.desc}${p.owner?` · ${p.owner}`:""}</div>${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="progress"><div class="bar" style="width:${p.progress}%"></div></div><div class="sub">Progress ${p.progress}% · Effort ${p.effort||0}%${bigSp(p.sp)?` · <span style="color:var(--amber)">Consider breaking this work item into smaller tasks</span>`:""}</div></div>`).join("")}</div>
+</details>`).join("")}</div>
+</details>`).join("");
+}
+function renderTaskSnapshot(){
+  const rows=data.pbis.slice().sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority]??9)-({High:0,Medium:1,Low:2}[b.priority]??9));
+  taskSnapshot.innerHTML=rows.map(p=>`<tr><td><b>${p.id}</b></td><td>${p.desc}</td><td>${p.task||"-"}</td><td>${p.owner}</td><td>${p.productDoc||"-"}</td><td>${p.sandboxDoc||"-"}</td><td>${p.sp}</td><td>${p.effort||0}%</td><td>${p.status}</td><td>${p.progress}%</td></tr>`).join("")||`<tr><td colspan="10">No tasks yet.</td></tr>`;
+  taskSnapshotCards.innerHTML=rows.map(p=>`<div class="mobileItem"><div class="mobileItemTop"><b>${p.id}</b><span class="pill">${p.status}</span></div><div style="margin-top:4px">${p.desc}</div><div class="mobileGrid"><div><small>Owner</small><b>${p.owner}</b></div><div><small>Progress</small><b>${p.progress}%</b></div><div><small>Product Doc</small><b>${p.productDoc||"-"}</b></div><div><small>Sandbox Doc</small><b>${p.sandboxDoc||"-"}</b></div></div></div>`).join("")||"<div class='notice'>No tasks yet.</div>";
+}
+function teamCurrentWorkData(){
+  const activeStatuses=["In Progress","Review"];
+  const prioRank={High:0,Medium:1,Low:2};
+  const map={};
+  data.pbis.filter(p=>activeStatuses.includes(p.status)).forEach(p=>{
+    const owner=(p.owner&&p.owner.trim())||"Unassigned";
+    map[owner]??={owner,tasks:[]};
+    map[owner].tasks.push(p);
+  });
+  Object.values(map).forEach(m=>{
+    m.tasks.sort((a,b)=>(prioRank[a.priority]??9)-(prioRank[b.priority]??9)||b.progress-a.progress);
+  });
+  return Object.values(map).sort((a,b)=>a.owner.localeCompare(b.owner));
+}
+function renderTeamCurrentWork(){
+  const table=document.getElementById("teamCurrentWorkTable"), cards=document.getElementById("teamCurrentWorkCards"), blockedEl=document.getElementById("teamBlockedWork");
+  if(!table)return;
+  const groups=teamCurrentWorkData();
+  if(!groups.length){
+    table.innerHTML=`<tr><td colspan="7">No active work right now. Tasks in <b>In Progress</b> or <b>Review</b> will appear here per team member.</td></tr>`;
+    cards.innerHTML="<div class='emptyState'>No active work right now. Tasks in In Progress or Review will appear here per team member.</div>";
+  } else {
+    table.innerHTML=groups.map((g,gi)=>{
+      const p=g.tasks[0], extra=g.tasks.length-1;
+      const firstRow=`<tr><td><b>${g.owner}</b>${extra?` <span class="pill moreTasks" style="cursor:pointer" onclick="toggleTeamWork(${gi})" id="teamToggle-${gi}">+${extra} more active tasks</span>`:""}</td><td><b>${p.id}</b></td><td>${p.desc}</td><td><span class="pill">${p.story||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.status}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</div></td></tr>`;
+      const extraRows=g.tasks.slice(1).map(t=>`<tr class="teamExtra-${gi}" style="display:none"><td></td><td><b>${t.id}</b></td><td>${t.desc}</td><td><span class="pill">${t.story||"Unassigned"}</span></td><td><span class="pill">${t.release||"Unassigned"}</span></td><td>${t.status}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${t.progress}%"></div></div>${t.progress}%</div></td></tr>`).join("");
+      return firstRow+extraRows;
+    }).join("");
+    cards.innerHTML=groups.map((g,gi)=>{
+      const p=g.tasks[0], extra=g.tasks.length-1;
+      const firstCard=`<div class="mobileItem"><div class="mobileItemTop"><b>${g.owner}</b>${extra?`<span class="pill moreTasks" style="cursor:pointer" onclick="toggleTeamWork(${gi})" id="teamToggleCard-${gi}">+${extra} more active tasks</span>`:""}</div><div style="margin-top:4px"><b>${p.id}</b> - ${p.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${p.story||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Status</small><b>${p.status}</b></div><div><small>Progress</small><b>${p.progress}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div></div>`;
+      const extraCards=g.tasks.slice(1).map(t=>`<div class="mobileItem teamExtra-${gi}" style="display:none"><div class="mobileItemTop"><b>${g.owner}</b></div><div style="margin-top:4px"><b>${t.id}</b> - ${t.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${t.story||"Unassigned"}</b></div><div><small>Version</small><b>${t.release||"Unassigned"}</b></div><div><small>Status</small><b>${t.status}</b></div><div><small>Progress</small><b>${t.progress}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${t.progress}%"></div></div></div>`).join("");
+      return firstCard+extraCards;
+    }).join("");
+  }
+  const blocked=data.pbis.filter(p=>p.status==="Blocked");
+  if(!blocked.length){blockedEl.innerHTML="";return;}
+  blockedEl.innerHTML=`<div class="teamBlockHead">Blocked - Needs Attention</div>`+blocked.map(p=>`<div class="mobileItem blockedItem"><div class="mobileItemTop"><b>${(p.owner&&p.owner.trim())||"Unassigned"}</b><span class="pill bad">Blocked</span></div><div style="margin-top:4px"><b>${p.id}</b> - ${p.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${p.story||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div></div>${p.notes?`<div class="sub" style="margin-top:6px">${p.notes}</div>`:""}</div>`).join("");
+}
+function toggleTeamWork(gi){
+  const g=teamCurrentWorkData()[gi];if(!g)return;
+  const extra=g.tasks.length-1;
+  const rows=document.querySelectorAll(".teamExtra-"+gi);
+  const showing=rows.length&&rows[0].style.display!=="none";
+  rows.forEach(r=>r.style.display=showing?"none":"");
+  const label=showing?`+${extra} more active tasks`:"Show less";
+  const tRow=document.getElementById("teamToggle-"+gi), tCard=document.getElementById("teamToggleCard-"+gi);
+  if(tRow)tRow.textContent=label;
+  if(tCard)tCard.textContent=label;
+}
+function printDashboard(){window.print();}
+const SHEET_DEFS={
+ Sprint:{cols:["name","start","end","members","goal"],labels:["Sprint / Name","Start Date","End Date","Members","Goal"],single:true},
+ PBIs:{cols:["id","desc","task","goal","owner","sp","status","priority","progress","due","story","release","effort","confidence","productDoc","sandboxDoc","notes"],labels:["Task / PBI","Description","Task","Goal / Purpose","Owner","Story Points","Status","Priority","Progress %","Due Date","Sprint Story","Release","Effort %","Confidence","Product Document","Sandbox Document","Notes"]},
+ Daily:{cols:["date","remaining","featuresRemaining","done","notes"],labels:["Date","Remaining SP","Features Remaining","Done","Notes"]},
+ History:{cols:["name","commit","done","pbis","featuresCompleted","featuresRemaining"],labels:["Sprint","Committed SP","Completed SP","PBIs Completed","Features Completed","Features Remaining"]},
+ Releases:{cols:["version","date","total","done"],labels:["Version","Date","Total","Completed"]},
+ SprintPlan:{cols:["activity","story","week","status","actual","carry","notes"],labels:["Activity","Sprint Story","Week","Status","Actual %","Carry Over","Notes"]}
+};
+function rowsFromSheet(ws,def){
+ const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+ if(!aoa.length)return[];
+ const header=aoa[0].map(h=>String(h||"").trim());
+ const idx=def.labels.map(l=>header.indexOf(l));
+ return aoa.slice(1).filter(r=>r.some(v=>String(v).trim()!=="")).map(r=>{
+  const o={};def.cols.forEach((c,i)=>{const pos=idx[i];o[c]=pos>=0?(r[pos]??""):""});return o;
+ });
+}
+function dataFromWorkbook(wb){
+ const out={sprint:{},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]};
+ for(const key of Object.keys(SHEET_DEFS)){
+  const ws=wb.Sheets[key];if(!ws)continue;
+  const def=SHEET_DEFS[key];
+  const rows=rowsFromSheet(ws,def);
+  if(key==="Sprint"){if(rows[0])out.sprint=rows[0]}
+  else if(key==="PBIs")out.pbis=rows;
+  else if(key==="Daily")out.daily=rows;
+  else if(key==="History")out.history=rows;
+  else if(key==="Releases")out.releases=rows;
+  else if(key==="SprintPlan")out.sprintPlan=rows;
+ }
+ return out;
+}
+async function loadInitial(){
+ try{
+  const res=await fetch("../data/agile_dashboard_data.xlsx",{cache:"no-store"});
+  if(res.ok){
+   const buf=await res.arrayBuffer();
+   const wb=XLSX.read(buf,{type:"array"});
+   const x=dataFromWorkbook(wb);
+   if(x&&x.sprint&&Array.isArray(x.pbis)){data=x;normalizeData();return "xlsx";}
+  }
+ }catch(e){}
+ try{
+  const res=await fetch("../data/agile_dashboard_data.json",{cache:"no-store"});
+  if(res.ok){
+   const json=await res.json();
+   if(json&&json.sprint&&Array.isArray(json.pbis)){data=json;normalizeData();return "json";}
+  }
+ }catch(e){}
+ return null;
+}
+loadInitial().then(loaded=>{
+ renderDashboard();
+ saveState.textContent=loaded==="xlsx"?"● Data loaded (Excel)":loaded==="json"?"● Data loaded (JSON)":"● No data found";
+});
+</script>
+</body>
+</html>

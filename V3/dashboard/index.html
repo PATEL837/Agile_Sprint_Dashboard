@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Agile Team Delivery Dashboard - Sprint Control Center</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--text:#172033;--muted:#697386;--line:#e2e7ef;--blue:#365cff;--green:#159447;--amber:#c87500;--red:#d52d2d;--dark:#111827;--shadow:0 3px 14px rgba(17,24,39,.06)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.top{background:var(--dark);color:white;padding:18px max(16px,calc((100vw - 1480px)/2));display:flex;justify-content:space-between;gap:18px;align-items:center;flex-shrink:0}
+.top h1{font-size:22px;margin:0}.top p{font-size:12px;color:#bdc5d3;margin:4px 0 0}.topRight{display:flex;align-items:center;gap:8px}
+.saveDot{font-size:11px;color:#a7f3c1;white-space:nowrap}.menuBtn{display:none}
+.nav{position:relative;z-index:10;background:white;border-bottom:1px solid var(--line);display:flex;gap:5px;padding:9px max(12px,calc((100vw - 1480px)/2));overflow:auto;flex-shrink:0}
+.sectionNav{margin:0 0 18px;border:1px solid var(--line);border-radius:10px}.nav button{border:0;background:transparent;color:var(--muted);padding:9px 12px;border-radius:8px;font-weight:700;white-space:nowrap}.nav button.active{background:#edf1ff;color:#2947c8}
+main{max-width:1480px;margin:auto;padding:18px 16px 30px;width:100%;flex:1 0 auto}.tab{display:none}.tab.active{display:block}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);margin-bottom:13px}.label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:28px;font-weight:850;margin-top:5px}.sub{font-size:12px;color:var(--muted);margin-top:3px}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+.winsList{display:flex;flex-direction:column}
+.winItem{display:flex;align-items:flex-start;gap:11px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.winItem:last-child{border-bottom:none;padding-bottom:2px}
+.winCheck{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.winTitle{font-size:13px;font-weight:700;color:var(--text);line-height:1.35}
+.winSub{font-size:11.5px;color:var(--muted);margin-top:1px;line-height:1.3}
+h2{font-size:16px;margin:0 0 4px}.desc{font-size:12px;color:var(--muted);margin-bottom:13px}.chartBox{height:280px;position:relative}
+canvas{max-width:100%}
+form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:var(--muted);font-weight:750}.full{grid-column:1/-1}
+input,select,textarea{border:1px solid #d3d9e3;background:white;color:var(--text);border-radius:8px;padding:10px 11px;outline:none;min-height:42px}textarea{min-height:82px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#7c91ff;box-shadow:0 0 0 3px #365cff15}
+.actions{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:750;min-height:42px}.primary{background:var(--blue);color:#fff}.secondary{background:#edf0f5;color:#273044}.danger{background:#fee2e2;color:#9d1c1c}.success{background:#e8f8ee;color:#126b34}
+.notice{background:#eef2ff;color:#3047a5;border-radius:9px;padding:11px 12px;font-size:12px;margin-bottom:13px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.toolbar h2{margin:0}
+.tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse;font-size:12px;min-width:760px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{font-size:10px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.progress{height:7px;background:#e9edf3;border-radius:99px;overflow:hidden;min-width:85px}.bar{height:100%;background:var(--blue);border-radius:99px}.pill{display:inline-block;padding:4px 7px;border-radius:99px;background:#eef0f4;font-size:10px;font-weight:750}
+.metricRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f7f8fb;border-radius:9px;padding:12px}.metric b{font-size:19px;display:block;margin-top:3px}
+.mobileCards{display:none}
+footer{position:sticky;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);display:flex;z-index:30;padding:6px max(6px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom))}
+.creditWrap{border-top:1px solid var(--line);background:transparent;margin-top:6px;flex-shrink:0}
+.credit{max-width:1480px;margin:0 auto;padding:12px 16px 18px;text-align:center;color:#b7bec9;font-size:10px;font-weight:400;letter-spacing:.01em;background:transparent}.credit strong{font-weight:400;color:inherit}
+.wbsHint{font-size:11px;color:var(--amber);margin-top:6px;grid-column:1/-1;background:#fdf6e8;border:1px solid #f0dfb0;border-radius:8px;padding:8px 10px}.wbsHint.hidden{display:none}.wbsPill{background:#fdf6e8;color:var(--amber);border:1px solid #f0dfb0}
+.releaseGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.releaseItem,.storyItem,.planItem{border:1px solid var(--line);border-radius:10px;padding:11px;background:#fbfcff}.releaseItem{display:flex;justify-content:space-between;gap:10px;align-items:center}.storyItem{margin:8px 0}.storyTop{display:flex;justify-content:space-between;gap:8px}.storyTasks{font-size:11px;color:var(--muted);margin-top:6px}.confidence{font-weight:800}.confidence.high{color:var(--green)}.confidence.medium{color:var(--amber)}.confidence.low{color:var(--red)}.planGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.wbsBar{height:6px;background:#e9edf3;border-radius:99px;overflow:hidden;margin-top:5px}.wbsBar span{display:block;height:100%;background:var(--blue)}
+footer button{flex:1;border:0;background:transparent;color:var(--muted);font-size:10px;padding:5px 2px}footer button span{display:block;font-size:18px;margin-bottom:2px}footer button.active{color:#2947c8;font-weight:800}
+.hidden{display:none!important}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .releaseGrid,.planGrid{grid-template-columns:1fr}
+ body{font-size:14px}.top{padding:14px 14px 12px}.top h1{font-size:19px}.top p{font-size:11px}.topRight .actions{display:none}.menuBtn{display:block;background:#273044;color:white;border:1px solid #414b5e;border-radius:8px;padding:8px 10px}
+ .grid4{grid-template-columns:repeat(2,1fr);gap:8px}.grid4 .card{padding:12px;margin-bottom:8px}.value{font-size:23px}main{padding:12px 10px 20px}.card{padding:13px;border-radius:10px}
+ form{grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}.field input,.field select,.field textarea{font-size:16px}.actions{grid-column:1/-1}.actions .btn{flex:1}
+ .chartBox{height:245px}.metricRow{grid-template-columns:1fr 1fr 1fr;gap:6px}.metric{padding:9px}.metric b{font-size:16px}
+ .tableWrap{display:none}.mobileCards{display:block}.mobileItem{border:1px solid var(--line);border-radius:9px;padding:11px;margin:8px 0}.mobileItemTop{display:flex;justify-content:space-between;gap:8px}.mobileGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.mobileGrid small{display:block;color:var(--muted);font-size:10px}.mobileGrid b{font-size:12px}.mobileItem .actions{margin-top:9px}
+}
+
+.currentWork{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.workItem{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fbfcff}.workItem h3{font-size:13px;margin:0 0 5px}.workItem p{font-size:11px;color:var(--muted);margin:0 0 9px}.workMeta{display:flex;gap:6px;flex-wrap:wrap}.doc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;background:#f0f3f8;padding:4px 6px;border-radius:6px}.emptyState{padding:16px;border:1px dashed #cbd3df;border-radius:10px;color:var(--muted);font-size:12px}.printBtn{background:#111827;color:#fff}.miniTable table{min-width:900px}.statusDot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;background:#9aa4b2}.statusDot.active{background:var(--blue)}.statusDot.done{background:var(--green)}.statusDot.blocked{background:var(--red)}
+.moreTasks{background:#edf1ff;color:#2947c8}.blockedItem{border-color:#f3c8c8!important;background:#fff8f8!important}.teamBlockHead{font-size:12px;font-weight:800;color:var(--red);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.traceVersion{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fbfcff}.traceVersion>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800}.traceVersion>summary::-webkit-details-marker{display:none}.traceVersion>summary::before{content:"▸";color:var(--muted);font-size:11px}.traceVersion[open]>summary::before{content:"▾"}
+.traceStory{border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin:8px 0 0;background:#fff}.traceStory>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:750;font-size:13px}.traceStory>summary::-webkit-details-marker{display:none}.traceStory>summary::before{content:"▸";color:var(--muted);font-size:10px}.traceStory[open]>summary::before{content:"▾"}
+.traceBody{padding-left:16px;margin-top:8px}.traceLabel{font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.traceTask{border-left:2px solid var(--line);padding:6px 0 6px 10px;margin:6px 0}.traceTaskTop{display:flex;justify-content:space-between;align-items:center;gap:8px}.traceTask .progress{margin-top:5px}
+@media(max-width:700px){.currentWork{grid-template-columns:1fr}.currentWork .workItem:nth-child(n+4){display:none}}
+@media print{.top,.nav,footer,.actions,.notice,.noPrint{display:none!important}.tab{display:none!important}.tab.active{display:block!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}.currentWork{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="top">
+<div><h1>Agile Team Delivery Dashboard</h1><p>Team Sprint Control Center · LTTS × BioMérieux</p></div>
+<div class="topRight"><span class="saveDot" id="saveState">● Saved locally</span></div>
+</header>
+<nav class="nav" id="topNav"></nav>
+<main>
+<section id="dashboard" class="tab active">
+<div class="notice">Loads automatically from <b>data/agile_dashboard_data.xlsx</b> or <b>data/agile_dashboard_data.json</b> (relative to this dashboard folder, Excel tried first) if present, otherwise from this browser's local storage. Edits here are saved locally only - <b>Export</b> and replace the file in the data folder to publish changes.</div>
+
+<!-- 1. Sprint Overview + top-line KPIs -->
+<div class="card">
+<div class="toolbar"><div><h2>Sprint Overview</h2><div class="desc" id="dashSprintMeta">No dates set</div></div><button class="btn printBtn noPrint" onclick="printDashboard()">🖨 Print Sprint Report</button></div>
+<div id="dashSprintOverview"></div>
+<div class="grid4" style="margin-top:13px">
+<div class="card"><div class="label">Commitment</div><div class="value" id="kCommit">0 SP</div><div class="sub" id="kPbis">0 PBIs</div></div>
+<div class="card"><div class="label">Completed</div><div class="value" id="kDone">0 SP</div><div class="sub" id="kDonePct">0%</div></div>
+<div class="card"><div class="label">Velocity</div><div class="value" id="kVelocity">0 SP</div><div class="sub">Rolling average</div></div>
+<div class="card"><div class="label">Forecast</div><div class="value" id="kForecast">0 SP</div><div class="sub" id="kRange">No commitment</div></div>
+</div>
+</div>
+
+<!-- 2. Release Progress -->
+<div class="card">
+<div class="toolbar"><div><h2>Software Version / Release Progress</h2><div class="desc">Tasks per release version and sprint, calculated live from this sprint's PBI/task list.</div></div></div>
+<div id="versionProgress"></div>
+</div>
+
+<!-- 3-7. Charts, kept together -->
+<div class="grid2">
+<div class="card"><h2>Sprint Burndown</h2><div class="desc">Daily remaining story points</div><div class="chartBox"><canvas id="burndown"></canvas></div></div>
+<div class="card"><h2>Features Burndown - All Sprint History</h2><div class="desc">Total features remaining, from the start of Sprint 1 through the latest sprint - log each sprint's Features Completed / Remaining on the History tab</div><div class="chartBox"><canvas id="featureBurndown"></canvas></div></div>
+</div>
+<div class="grid2">
+<div class="card"><h2>Velocity Trend</h2><div class="desc">Planned vs completed story points across all sprint history, with velocity %</div><div class="chartBox"><canvas id="velocityChart"></canvas></div></div>
+<div class="card"><h2>Complete List of Stories / PBI Flow</h2><div class="desc">Current sprint task status distribution</div><div class="chartBox"><canvas id="flow"></canvas></div></div>
+</div>
+<div class="grid2">
+<div class="card"><h2>Completion Trend</h2><div class="desc">PBIs completed per sprint</div><div class="chartBox"><canvas id="throughput"></canvas></div></div>
+<div class="card"><h2>Recent Wins</h2><div class="desc">Latest completions across the sprint</div><div id="teamWins"></div></div>
+</div>
+
+<!-- 8. What the team is working on -->
+<div class="card">
+<div class="toolbar"><div><h2>Current Active Work Items</h2><div class="desc">Grouped by owner - current task, story, version, and progress.</div></div></div>
+<div class="tableWrap"><table><thead><tr><th>Team Member</th><th>PBI/Task ID</th><th>Task</th><th>Story</th><th>Version</th><th>Status</th><th>Progress</th></tr></thead><tbody id="teamCurrentWorkTable"></tbody></table></div>
+<div id="teamCurrentWorkCards" class="mobileCards"></div>
+<div id="teamBlockedWork"></div>
+</div>
+
+<!-- 9. Sprint Task Snapshot -->
+<div class="card">
+<div class="toolbar"><div><h2>Sprint Task Snapshot</h2><div class="desc">Description, product document and sandbox document are visible together.</div></div><button class="btn secondary noPrint" onclick="go('pbi')">✏️ Edit Tasks</button></div>
+<div class="tableWrap miniTable"><table><thead><tr><th>Task / PBI</th><th>Description</th><th>Task</th><th>Owner</th><th>Product Doc</th><th>Sandbox Doc</th><th>SP</th><th>Effort %</th><th>Status</th><th>Progress</th></tr></thead><tbody id="taskSnapshot"></tbody></table></div>
+<div id="taskSnapshotCards" class="mobileCards"></div>
+</div>
+
+<div class="card">
+<div class="toolbar"><div><h2>Traceability: Version → Story → PBI → Status</h2><div class="desc">Expand a version to see its stories, expand a story to see the PBIs/tasks that make it up, and their status and progress.</div></div></div>
+<div id="traceView"></div>
+</div>
+</section>
+
+<section id="sprint" class="tab">
+<div class="card"><h2>Sprint Setup</h2><div class="desc">Set the sprint dates, team context and goal. No individual capacity tracking is required.</div>
+<form id="sprintForm">
+<div class="field"><label>Sprint Name</label><input id="sName" required></div><div class="field"><label>Start Date</label><input id="sStart" type="date" required></div><div class="field"><label>End Date</label><input id="sEnd" type="date" required></div><div class="field"><label>Team Members</label><input id="sMembers" type="number" min="1" value="11"></div>
+
+<div class="field full"><label>Sprint Goal</label><textarea id="sGoal"></textarea></div>
+<div class="actions"><button class="btn primary">Save Sprint</button><button type="button" class="btn secondary" onclick="loadDemo()">Load Demo</button></div>
+</form></div>
+<div class="card"><h2>Current Sprint</h2><div id="sprintSummary"></div></div>
+<div class="card"><h2>Sprint Story Tracking</h2><div class="desc">Set each task's <b>Sprint Story</b> on the PBI tab - story rollup and status are calculated automatically on the Dashboard tab. No separate story list to maintain.</div></div>
+<div class="card">
+<div class="toolbar"><div><h2>Sprint Plan & Carry-Forward</h2><div class="desc">What was planned, what's active this week, what's completed, and what carries forward.</div></div></div>
+<div class="metricRow" id="spSummary" style="margin-bottom:13px"></div>
+<form id="planForm"><input type="hidden" id="editSpId">
+<div class="field full"><label>Planned Activity</label><input id="spActivity" placeholder="e.g. Complete reporting validation" required></div>
+<div class="field"><label>Related Story/PBI</label><input id="spStory" list="spStoryOptions" placeholder="Reporting or PBI-1051"><datalist id="spStoryOptions"></datalist></div>
+<div class="field"><label>Planned Week</label><input id="spWeek" placeholder="Week of Aug 3" required></div>
+<div class="field"><label>Status</label><select id="spStatus"><option>Planned</option><option>In Progress</option><option>Completed</option><option>Blocked</option></select></div>
+<div class="field"><label>Actual Progress %</label><input id="spActual" type="number" min="0" max="100" value="0"></div>
+<div class="field"><label>Carry Forward?</label><select id="spCarry"><option>No</option><option>Yes</option></select></div>
+<div class="field full"><label>Improvement / Notes</label><textarea id="spNotes"></textarea></div>
+<div class="actions"><button class="btn primary">Save Plan Item</button><button type="button" class="btn secondary" onclick="clearSpForm()">Clear</button></div></form>
+<div class="tableWrap" style="margin-top:13px"><table><thead><tr><th>Planned Activity</th><th>Story/PBI</th><th>Week</th><th>Status</th><th>Progress</th><th>Carry Forward</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="sprintPlanTable"></tbody></table></div>
+<div id="sprintPlanCards" class="mobileCards"></div>
+</div>
+</section>
+
+<section id="pbi" class="tab">
+<div class="card"><h2>Add / Edit Sprint Task / PBI</h2><div class="desc">Lightweight WBS: Goal/Purpose → Story → Task, with Effort % and Progress % per work item. Fibonacci estimates: 1, 2, 3, 5, 8, 13, 21.</div>
+<form id="pbiForm"><input type="hidden" id="editId">
+<div class="field"><label>PBI ID</label><input id="pId" placeholder="PBI-1001" required></div><div class="field"><label>Description</label><input id="pDesc" required></div><div class="field"><label>Task</label><input id="pTask" placeholder="e.g. Build login form"></div><div class="field"><label>Owner</label><input id="pOwner" required></div>
+<div class="field full"><label>Goal / Purpose</label><textarea id="pGoal" placeholder="Why this work item exists - the outcome it supports"></textarea></div>
+<div class="field"><label>Story Points</label><select id="pSP" onchange="checkWbsSize()"><option>1</option><option>2</option><option>3</option><option>5</option><option>8</option><option>13</option><option>21</option></select></div>
+<div class="field"><label>Status</label><select id="pStatus"><option>Not Started</option><option>In Progress</option><option>Review</option><option>Completed</option><option>Blocked</option></select></div><div class="field"><label>Priority</label><select id="pPriority"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Progress % <span style="font-weight:400;color:var(--muted)">(work item)</span></label><input id="pProgress" type="number" min="0" max="100" value="0"></div><div class="field"><label>Due Date</label><input id="pDue" type="date"></div><div class="field"><label>Sprint Story</label><input id="pStory" list="storyOptions" placeholder="Select or type a story"><datalist id="storyOptions"><option>Authentication</option><option>Reporting</option><option>Dashboard</option><option>Search</option><option>Integration</option><option>Accessibility</option></datalist></div><div class="field"><label>Release / Version</label><input id="pRelease" placeholder="V-1.3"></div><div class="field"><label>Effort % <span style="font-weight:400;color:var(--muted)">(this work item's effort)</span></label><input id="pEffort" type="number" min="0" max="100" value="0"></div><div class="field"><label>Confidence</label><select id="pConfidence"><option>High</option><option>Medium</option><option>Low</option></select></div><div class="field"><label>Product Document #</label><input id="pProductDoc" placeholder="PROD-12345"></div><div class="field"><label>Sandbox Document #</label><input id="pSandboxDoc" placeholder="SBX-12345"></div>
+<div id="wbsRecommend" class="wbsHint hidden">💡 This is a large work item (13–21 points). Consider breaking this work item into smaller tasks. This is a suggestion, not a requirement - 21-point items are still allowed.</div>
+<div class="field full"><label>Notes / Blocker</label><textarea id="pNotes"></textarea></div><div class="actions"><button class="btn primary">Save PBI</button><button type="button" class="btn secondary" onclick="clearPbiForm()">Clear</button></div></form></div>
+<div class="card"><div class="toolbar"><div><h2>Sprint Tasks / PBIs</h2><div class="desc">Add, edit, or remove work items.</div></div><button class="btn danger" onclick="clearAllPbis()">Delete All</button></div><div class="tableWrap"><table><thead><tr><th>Task / PBI</th><th>Description</th><th>Task</th><th>Owner</th><th>Sprint Story</th><th>Version</th><th>Product Doc</th><th>Sandbox Doc</th><th>SP</th><th>Effort %</th><th>Status</th><th>Progress</th><th>Priority</th><th>Actions</th></tr></thead><tbody id="pbiTable"></tbody></table></div><div id="pbiCards" class="mobileCards"></div></div>
+</section>
+
+<section id="daily" class="tab">
+<div class="card"><h2>Daily Sprint Update</h2><div class="desc">One row per day. Remaining SP powers the burndown.</div>
+<form id="dailyForm"><div class="field"><label>Date</label><input id="dDate" type="date" required></div><div class="field"><label>Remaining SP</label><input id="dRemaining" type="number" min="0" required></div><div class="field"><label>Features Remaining</label><input id="dFeatures" type="number" min="0" placeholder="optional"></div><div class="field"><label>PBIs Completed Today</label><input id="dDone" type="number" min="0" value="0"></div><div class="field"><label>Notes</label><input id="dNotes"></div><div class="actions"><button class="btn primary">Save Daily Update</button></div></form></div>
+<div class="card"><h2>Daily History</h2><div class="tableWrap"><table><thead><tr><th>Date</th><th>Remaining</th><th>Features Left</th><th>PBIs Completed</th><th>Notes</th><th>Action</th></tr></thead><tbody id="dailyTable"></tbody></table></div><div id="dailyCards" class="mobileCards"></div></div>
+</section>
+
+<section id="history" class="tab">
+<div class="card"><h2>Historical Sprint Velocity</h2><div class="desc">Completed sprint results improve forecasting.</div>
+<form id="historyForm"><div class="field"><label>Sprint</label><input id="hName" placeholder="Sprint 23" required></div><div class="field"><label>Committed SP</label><input id="hCommit" type="number" min="0" required></div><div class="field"><label>Completed SP</label><input id="hDone" type="number" min="0" required></div><div class="field"><label>PBIs Completed</label><input id="hPbis" type="number" min="0" required></div><div class="field"><label>Features Completed</label><input id="hFeaturesCompleted" type="number" min="0" value="0"></div><div class="field"><label>Features Remaining</label><input id="hFeaturesRemaining" type="number" min="0" value="0"></div><div class="actions"><button class="btn primary">Add Sprint</button></div></form></div>
+<div class="card"><div class="toolbar"><h2>Velocity History</h2><button class="btn danger" onclick="clearHistory()">Delete History</button></div><div class="tableWrap"><table><thead><tr><th>Sprint</th><th>Commit</th><th>Completed</th><th>Achievement</th><th>PBIs</th><th>Features Done</th><th>Features Left</th><th>Action</th></tr></thead><tbody id="historyTable"></tbody></table></div><div id="historyCards" class="mobileCards"></div></div>
+</section>
+
+<section id="data" class="tab">
+<div class="card"><h2>Data Backup & Transfer</h2><div class="desc">Use Export on your phone, then Import the downloaded file on your PC. This is the Stage 1 way to move data between devices.</div>
+<div class="actions"><button class="btn primary" onclick="exportData()">⬇ Export JSON</button><button class="btn primary" onclick="exportXlsx()">⬇ Export Excel</button><button class="btn secondary" onclick="document.getElementById('importFile').click()">⬆ Import File</button><button class="btn secondary" onclick="reloadFromSource()">🔄 Reload data</button><input id="importFile" type="file" accept=".json,application/json,.xlsx,.csv,text/csv" class="hidden"></div>
+<div class="notice" style="margin-top:12px">Export includes sprint setup, tasks/PBIs, daily updates, and historical velocity. <b>Export JSON</b> or <b>Export Excel</b> both produce a full backup you can re-import here, or commit into the <b>data</b> directory (as agile_dashboard_data.json / .xlsx, sibling of dashboard) for GitHub Pages to pick up automatically. <b>Import File</b> accepts a full-backup .json, a full-backup .xlsx (same sheet layout as Export Excel), or a single table .csv (Tasks/Velocity/Daily/Sprint Plan CSV - matched automatically by its column headers and merged into that table).</div></div>
+<div class="card"><h2>CSV Export</h2><div class="desc">Useful for opening single tables in Excel/Sheets. Each can also be re-imported via Import File.</div><div class="actions"><button class="btn secondary" onclick="exportPbisCsv()">Tasks CSV</button><button class="btn secondary" onclick="exportHistoryCsv()">Velocity CSV</button><button class="btn secondary" onclick="exportDailyCsv()">Daily CSV</button><button class="btn secondary" onclick="exportSprintPlanCsv()">Sprint Plan CSV</button></div></div>
+<div class="card"><h2>Reset</h2><div class="desc">This permanently clears all locally stored dashboard data.</div><button class="btn danger" onclick="resetAll()">Reset Everything</button></div>
+</section>
+</main>
+<div class="creditWrap"><div class="credit"><div>Agile Team Delivery Dashboard - Sprint Control Center</div><div style="margin-top:3px">Created & Developed by Dixit Bharatkumar Patel, PhD · LTTS</div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const KEY="agileVelocityStage1";
+const navItems=[["dashboard","📊","Dashboard"],["sprint","⚙️","Sprint"],["pbi","📝","PBIs"],["daily","🔄","Daily"],["history","📈","History"],["data","💾","Data"]];
+const empty=()=>({sprint:{name:"Sprint 1",start:"",end:"",members:11,hours:8,holiday:0,pto:0,other:0,goal:""},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]});
+let data=empty(), charts={}, dataSource="local";
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function toDMY(iso){ // 'YYYY-MM-DD' -> 'DDMMMYYYY' (e.g. 04Aug2026), for display and export
+ if(!iso)return "";
+ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+ if(!m)return iso;
+ const mi=+m[2]-1;
+ return m[3]+(MONTHS[mi]||"")+m[1];
+}
+function fromDMY(s){ // 'DDMMMYYYY' -> 'YYYY-MM-DD'; passes through if already ISO or unrecognized
+ if(!s)return "";
+ s=String(s).trim();
+ if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+ const m=/^(\d{2})([A-Za-z]{3})(\d{4})$/.exec(s);
+ if(!m)return s;
+ const mi=MONTHS.findIndex(x=>x.toLowerCase()===m[2].toLowerCase());
+ if(mi<0)return s;
+ return `${m[3]}-${String(mi+1).padStart(2,"0")}-${m[1]}`;
+}
+const fmtDate=toDMY;
+function normalizeData(){
+  data.sprint=data.sprint||empty().sprint;
+  data.pbis=Array.isArray(data.pbis)?data.pbis:[];
+  data.daily=Array.isArray(data.daily)?data.daily:[];
+  data.history=Array.isArray(data.history)?data.history:[];
+  data.releases=Array.isArray(data.releases)?data.releases:[];
+  data.sprintPlan=Array.isArray(data.sprintPlan)?data.sprintPlan:[];
+  if(!data.sprintPlan.length&&Array.isArray(data.weeklyPlan)&&data.weeklyPlan.length){
+    data.sprintPlan=data.weeklyPlan.map(w=>({activity:w.plan||"",story:"",week:w.week||"",status:(Number(w.actual||0)>=100?"Completed":(Number(w.actual||0)>0?"In Progress":"Planned")),actual:Number(w.actual||0),carry:(Number(w.carry||0)>0?"Yes":"No"),notes:w.notes||""}));
+  }
+  delete data.weeklyPlan;
+  data.pbis.forEach(p=>{if(p.status==="Done")p.status="Completed"});
+  data.pbis.forEach(p=>{p.story=(p.story||p.feature||p.storyId||p.featureId||"").trim();delete p.storyId;delete p.feature;delete p.featureId;p.release=p.release||"";p.effort=Number(p.effort||0);p.confidence=p.confidence||"High"});
+  data.pbis.forEach(p=>{p.productDoc=p.productDoc||"";p.sandboxDoc=p.sandboxDoc||"";p.progress=Number(p.progress||0)});
+  data.pbis.forEach(p=>{p.goal=p.goal||"";p.task=p.task||""});
+  data.sprintPlan.forEach(p=>{p.story=(p.story||p.feature||"").trim();delete p.feature});
+  data.daily.forEach(x=>{const legacy=x.featuresRemaining??x.storiesRemaining;x.featuresRemaining=(legacy===null||legacy===undefined||legacy==="")?null:Number(legacy);delete x.storiesRemaining});
+  data.history.forEach(x=>{x.featuresCompleted=Number(x.featuresCompleted||0);x.featuresRemaining=Number(x.featuresRemaining||0);delete x.stories});
+  data.sprint.start=fromDMY(data.sprint.start);data.sprint.end=fromDMY(data.sprint.end);
+  data.pbis.forEach(p=>{p.due=fromDMY(p.due)});
+  data.daily.forEach(x=>{x.date=fromDMY(x.date)});
+  data.releases.forEach(r=>{r.date=fromDMY(r.date)});
+  delete data.capacity; delete data.sprint.hours; delete data.sprint.holiday; delete data.sprint.pto; delete data.sprint.other;
+}
+normalizeData();
+
+function buildNav(){
+ topNav.innerHTML=navItems.map((n,i)=>`<button data-tab="${n[0]}" class="${i===0?'active':''}" onclick="go('${n[0]}',this)"><span>${n[1]}</span>${n[2]}</button>`).join("");
+}
+function go(id,el){
+ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));
+ window.scrollTo({top:0,behavior:"smooth"});
+ ({dashboard:renderDashboard,sprint:renderSprint,pbi:renderPbis,daily:renderDaily,history:renderHistory,data:()=>{}})[id]?.();
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));saveState.textContent="● Saved locally";}
+function commit(){return data.pbis.reduce((a,p)=>a+Number(p.sp||0),0)}
+function pbiDoneSP(){return data.pbis.filter(p=>p.status==="Completed").reduce((a,p)=>a+Number(p.sp||0),0)}
+function doneSP(){const h=data.history.find(x=>x.name===data.sprint.name);return h?Number(h.done||0):pbiDoneSP()}
+function avgVelocity(){let a=data.history.filter(x=>x.name!==data.sprint.name).map(x=>+x.done);if(doneSP())a.push(doneSP());a=a.slice(-6);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0}
+function forecast(){return Math.min(commit(),Math.max(doneSP(),avgVelocity()))}
+function sprintDays(){if(!data.sprint.start||!data.sprint.end)return 10;return Math.max(1,Math.floor((new Date(data.sprint.end)-new Date(data.sprint.start))/86400000)+1)}
+function destroy(k){if(charts[k])charts[k].destroy()}
+function renderDashboard(){
+ const c=commit(),d=doneSP(),pct=c?Math.round(d/c*100):0,v=avgVelocity(),f=forecast();
+ kCommit.textContent=c+" SP";kPbis.textContent=data.pbis.length+" PBIs";kDone.textContent=d+" SP";kDonePct.textContent=pct+"% of commitment";kVelocity.textContent=v+" SP";kForecast.textContent=f+" SP";kRange.textContent=c?(f>=c?"Likely to meet commitment":(c-f)+" SP currently at risk"):"Add PBIs to forecast";
+ renderDashSprintOverview(); renderTeamCurrentWork(); renderTaskSnapshot(); renderVersionProgress(); renderTraceability(); renderTeamFocus(); renderSprintPlan(); renderTeamWins(); drawCharts();
+}
+function renderDashSprintOverview(){
+ const c=commit(),d=doneSP(),pct=c?Math.round(d/c*100):0;
+ const meta=document.getElementById("dashSprintMeta");if(meta)meta.textContent=(data.sprint.start?fmtDate(data.sprint.start):"No start")+" → "+(data.sprint.end?fmtDate(data.sprint.end):"No end");
+ const el=document.getElementById("dashSprintOverview");if(!el)return;
+ el.innerHTML=`<div class="metricRow"><div class="metric"><span class="label">Sprint</span><b>${data.sprint.name||"Untitled"}</b></div><div class="metric"><span class="label">Overall Progress</span><b>${pct}%</b></div><div class="metric"><span class="label">Commitment</span><b>${c} SP</b></div></div><div class="progress" style="margin-top:10px"><div class="bar" style="width:${pct}%"></div></div><p style="margin-top:10px">${data.sprint.goal||"No sprint goal entered."}</p>`;
+}
+function renderTeamWins(){
+ const el=document.getElementById("teamWins");if(!el)return;
+ const wins=[];
+ data.pbis.filter(p=>p.status==="Completed").forEach(p=>wins.push({title:`${p.id} completed`,sub:p.desc}));
+ storySummary().filter(f=>f.status==="Completed").forEach(f=>wins.push({title:`Story "${f.story}" delivered`,sub:`${f.done}/${f.total} tasks done`}));
+ if(data.pbis.length&&data.pbis.every(p=>p.status==="Completed"))wins.push({title:`Sprint ${data.sprint.name} completed`,sub:`${data.pbis.length} PBIs delivered`});
+ data.sprintPlan.filter(p=>p.status==="Completed").forEach(p=>wins.push({title:p.activity,sub:p.story||"Plan item"}));
+ const top=wins.slice(-5).reverse();
+ el.innerHTML=top.length?`<div class="winsList">${top.map(w=>`<div class="winItem"><span class="winCheck">✓</span><div class="winText"><div class="winTitle">${w.title}</div>${w.sub?`<div class="winSub">${w.sub}</div>`:""}</div></div>`).join("")}</div>`:"<div class='emptyState'>No completions recorded yet.</div>";
+}
+function versionSummary(){
+ const map={};
+ data.pbis.forEach(p=>{const v=(p.release&&p.release.trim())?p.release.trim():"Unassigned";map[v]??={version:v,total:0,done:0};map[v].total++;if(p.status==="Completed")map[v].done++});
+ return Object.values(map).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function sprintNumber(){ // derive a short "Sprint #" label from the Sprint Name (e.g. "Sprint 24" -> "24")
+ const m=/(\d+)/.exec(data.sprint.name||"");
+ return m?m[1]:(data.sprint.name||"-");
+}
+function renderVersionProgress(){
+ const el=document.getElementById("versionProgress");if(!el)return;
+ const rows=versionSummary();
+ const sp=sprintNumber();
+ if(!rows.length){el.innerHTML="<div class='emptyState'>No versions yet. Set a Release / Version on a task in the PBIs tab to see progress here.</div>";return}
+ el.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Sprint #</th><th>Version</th><th>Total Tasks</th><th>Completed</th><th>Remaining</th><th>Progress</th></tr></thead><tbody>${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<tr><td><span class="pill">${sp}</span></td><td><b>${r.version}</b></td><td>${r.total}</td><td>${r.done}</td><td>${r.total-r.done}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress">${'<div class="bar" style="width:'+pct+'%"></div>'}</div>${pct}%</div></td></tr>`}).join("")}</tbody></table></div>
+<div class="mobileCards">${rows.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;return `<div class="mobileItem"><div class="mobileItemTop"><b>${r.version}</b><span class="pill">${pct}%</span></div><div class="mobileGrid"><div><small>Sprint #</small><b>${sp}</b></div><div><small>Total Tasks</small><b>${r.total}</b></div><div><small>Completed</small><b>${r.done}</b></div><div><small>Remaining</small><b>${r.total-r.done}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${pct}%"></div></div></div>`}).join("")}</div>`;
+}
+function drawCharts(){
+ destroy("b");destroy("f");destroy("v");destroy("t");destroy("fb");
+ const n=sprintDays(),c=commit(), dates=data.daily.map(x=>x.date), dateLabels=dates.map(fmtDate), remaining=data.daily.map(x=>x.remaining), ideal=Array.from({length:Math.max(n,dates.length,2)},(_,i)=>Math.max(0,c-(c*i/(Math.max(n,dates.length,2)-1))));
+ charts.b=new Chart(document.getElementById("burndown"),{type:"line",data:{labels:dates.length?dateLabels:ideal.map((_,i)=>"D"+(i+1)),datasets:[{label:"Ideal",data:dates.length?ideal.slice(0,dates.length):ideal,borderDash:[5,5],tension:.2},{label:"Actual",data:dates.length?remaining:[],tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{x:{ticks:{autoSkip:false,maxRotation:60,minRotation:dates.length>8?60:0,font:{size:10}}},y:{beginAtZero:true}}}});
+ const histSorted=data.history.filter(x=>x.name!==data.sprint.name).slice(-6);
+ const fbEl=document.getElementById("featureBurndown");
+ let fbLabels=[],fbVals=[];
+ if(data.history.length){
+  const start=Number(data.history[0].featuresRemaining||0)+Number(data.history[0].featuresCompleted||0);
+  fbLabels.push("Start");fbVals.push(start);
+  data.history.forEach(x=>{fbLabels.push(x.name);fbVals.push(Number(x.featuresRemaining||0))});
+ }
+ if(fbEl)charts.fb=new Chart(fbEl,{type:"line",data:{labels:fbLabels,datasets:[{label:"Features Remaining",data:fbVals,tension:.2,borderColor:"#c87500",backgroundColor:"#c8750022",fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+ const sts=["Not Started","In Progress","Review","Completed","Blocked"],vals=sts.map(s=>data.pbis.filter(p=>p.status===s).length);
+ charts.f=new Chart(document.getElementById("flow"),{type:"doughnut",data:{labels:sts,datasets:[{data:vals,backgroundColor:["#9aa4b2","#f5a623","#365cff","#159447","#d52d2d"]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+ let labs=[...histSorted.map(x=>x.name),data.sprint.name],planned=[...histSorted.map(x=>Number(x.commit||0)),c],completed=[...histSorted.map(x=>Number(x.done||0)),doneSP()];
+ const pctLine=planned.map((p,i)=>p?Math.round(completed[i]/p*100):0);
+ charts.v=new Chart(document.getElementById("velocityChart"),{data:{labels:labs,datasets:[{type:"bar",label:"Planned Story Points",data:planned,backgroundColor:"#365cff"},{type:"bar",label:"Completed Story Points",data:completed,backgroundColor:"#c87500"},{type:"line",label:"Velocity %",data:pctLine,yAxisID:"y1",borderColor:"#159447",tension:.2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,position:"left"},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+ charts.t=new Chart(document.getElementById("throughput"),{type:"line",data:{labels:histSorted.map(x=>x.name),datasets:[{label:"PBIs Completed",data:histSorted.map(x=>x.pbis),fill:true,tension:.2}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true}}}});
+}
+function renderSprint(){
+ sName.value=data.sprint.name;sStart.value=data.sprint.start;sEnd.value=data.sprint.end;sMembers.value=data.sprint.members;sGoal.value=data.sprint.goal;
+ renderSprintPlan();sprintSummary.innerHTML=`<div class="metricRow"><div class="metric"><span class="label">Sprint</span><b>${data.sprint.name}</b></div><div class="metric"><span class="label">Commitment</span><b>${commit()} SP</b></div><div class="metric"><span class="label">Team</span><b>${data.sprint.members} members</b></div></div><p class="sub">${data.sprint.start?fmtDate(data.sprint.start):"No start"} → ${data.sprint.end?fmtDate(data.sprint.end):"No end"}</p><p>${data.sprint.goal||"No sprint goal entered."}</p>`;
+}
+sprintForm.onsubmit=e=>{e.preventDefault();data.sprint={name:sName.value.trim(),start:sStart.value,end:sEnd.value,members:+sMembers.value,goal:sGoal.value};save();renderSprint();renderDashboard();alert("Sprint saved.");};
+
+function checkWbsSize(){const el=document.getElementById("wbsRecommend");if(!el)return;const big=["13","21"].includes(String(pSP.value));el.classList.toggle("hidden",!big)}
+function clearPbiForm(){editId.value="";pId.value="";pDesc.value="";pTask.value="";pGoal.value="";pOwner.value="";pSP.value="1";pStatus.value="Not Started";pPriority.value="High";pProgress.value=0;pDue.value="";pStory.value="";pRelease.value="";pEffort.value=0;pConfidence.value="High";pProductDoc.value="";pSandboxDoc.value="";pNotes.value="";checkWbsSize()}
+pbiForm.onsubmit=e=>{e.preventDefault();let p={id:pId.value.trim(),desc:pDesc.value.trim(),task:pTask.value.trim(),goal:pGoal.value.trim(),owner:pOwner.value.trim(),sp:+pSP.value,status:pStatus.value,priority:pPriority.value,progress:+pProgress.value,due:pDue.value,story:pStory.value.trim(),release:pRelease.value.trim(),effort:+pEffort.value,confidence:pConfidence.value,productDoc:pProductDoc.value.trim(),sandboxDoc:pSandboxDoc.value.trim(),notes:pNotes.value};let i=data.pbis.findIndex(x=>x.id===editId.value);if(i>=0)data.pbis[i]=p;else data.pbis.push(p);save();clearPbiForm();renderPbis();renderDashboard()};
+function pbiHtml(p,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${p.id}</b><span class="pill">${p.status}</span></div><div style="margin-top:4px">${p.desc}</div>${p.task?`<div class="sub"><small>Task:</small> ${p.task}</div>`:""}${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="mobileGrid"><div><small>Owner</small><b>${p.owner}</b></div><div><small>Story Points</small><b>${p.sp} SP</b></div><div><small>Sprint Story</small><b>${p.story||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Effort %</small><b>${p.effort||0}%</b></div><div><small>Progress</small><b>${p.progress}%</b></div><div><small>Product Doc</small><b>${p.productDoc||"-"}</b></div><div><small>Sandbox Doc</small><b>${p.sandboxDoc||"-"}</b></div><div><small>Priority</small><b>${p.priority}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div>${bigSp(p.sp)?`<div class="wbsHint" style="margin-top:8px">💡 Consider breaking this work item into smaller tasks.</div>`:""}<div class="actions"><button class="btn secondary" onclick="editPbi(${i})">Edit</button><button class="btn danger" onclick="deletePbi(${i})">Delete</button></div></div>`}
+function bigSp(sp){return sp===13||sp===21}
+function renderPbis(){
+ pbiTable.innerHTML=data.pbis.map((p,i)=>`<tr><td><b>${p.id}</b></td><td>${p.desc}</td><td>${p.task||"-"}</td><td>${p.owner}</td><td><span class="pill">${p.story||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.productDoc||"-"}</td><td>${p.sandboxDoc||"-"}</td><td>${p.sp}${bigSp(p.sp)?` <span class="pill wbsPill" title="Consider breaking this work item into smaller tasks">Consider splitting</span>`:""}</td><td>${p.effort||0}%</td><td>${p.status}</td><td><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</td><td><span class="pill">${p.priority}</span></td><td><button class="btn secondary" onclick="editPbi(${i})">Edit</button> <button class="btn danger" onclick="deletePbi(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="14">No tasks yet.</td></tr>`;
+ pbiCards.innerHTML=data.pbis.map(pbiHtml).join("")||"<div class='notice'>No PBIs yet. Add your first PBI above.</div>";
+}
+function editPbi(i){let p=data.pbis[i];editId.value=p.id;pId.value=p.id;pDesc.value=p.desc;pTask.value=p.task||"";pGoal.value=p.goal||"";pOwner.value=p.owner;pSP.value=p.sp;pStatus.value=p.status;pPriority.value=p.priority;pProgress.value=p.progress;pDue.value=p.due||"";pStory.value=p.story||"";pRelease.value=p.release||"";pEffort.value=p.effort||0;pConfidence.value=p.confidence||"High";pProductDoc.value=p.productDoc||"";pSandboxDoc.value=p.sandboxDoc||"";pNotes.value=p.notes||"";checkWbsSize();window.scrollTo({top:0,behavior:"smooth"})}
+function deletePbi(i){if(confirm("Delete this PBI?")){data.pbis.splice(i,1);save();renderPbis();renderDashboard()}}
+function clearAllPbis(){if(confirm("Delete all PBIs?")){data.pbis=[];save();renderPbis();renderDashboard()}}
+
+
+function renderCurrentWork(){
+  const active=data.pbis.filter(p=>p.status==="In Progress"||p.status==="Review").sort((a,b)=>(b.priority==="High")-(a.priority==="High")||b.progress-a.progress);
+  currentWork.innerHTML=active.length?active.map(p=>`<div class="workItem"><h3><span class="statusDot active"></span>${p.id} · ${p.owner}</h3><p>${p.desc}</p><div class="workMeta"><span class="pill">${p.status}</span><span class="pill">${p.progress}%</span><span class="pill">${p.sp} SP</span>${p.productDoc?`<span class="doc">PROD ${p.productDoc}</span>`:""}${p.sandboxDoc?`<span class="doc">SBX ${p.sandboxDoc}</span>`:""}</div></div>`).join(""):`<div class="emptyState">No active tasks right now. Add or update a task to show the team's current work.</div>`;
+}
+function teamCurrentWorkData(){
+  const activeStatuses=["In Progress","Review"];
+  const prioRank={High:0,Medium:1,Low:2};
+  const map={};
+  data.pbis.filter(p=>activeStatuses.includes(p.status)).forEach(p=>{
+    const owner=(p.owner&&p.owner.trim())||"Unassigned";
+    map[owner]??={owner,tasks:[]};
+    map[owner].tasks.push(p);
+  });
+  Object.values(map).forEach(m=>{
+    m.tasks.sort((a,b)=>(prioRank[a.priority]??9)-(prioRank[b.priority]??9)||b.progress-a.progress);
+  });
+  return Object.values(map).sort((a,b)=>a.owner.localeCompare(b.owner));
+}
+function renderTeamCurrentWork(){
+  const table=document.getElementById("teamCurrentWorkTable"), cards=document.getElementById("teamCurrentWorkCards"), blockedEl=document.getElementById("teamBlockedWork");
+  if(!table)return;
+  const groups=teamCurrentWorkData();
+  if(!groups.length){
+    table.innerHTML=`<tr><td colspan="7">No active work right now. Tasks in <b>In Progress</b> or <b>Review</b> will appear here per team member.</td></tr>`;
+    cards.innerHTML="<div class='emptyState'>No active work right now. Tasks in In Progress or Review will appear here per team member.</div>";
+  } else {
+    table.innerHTML=groups.map((g,gi)=>{
+      const p=g.tasks[0], extra=g.tasks.length-1;
+      const firstRow=`<tr><td><b>${g.owner}</b>${extra?` <span class="pill moreTasks" style="cursor:pointer" onclick="toggleTeamWork(${gi})" id="teamToggle-${gi}">+${extra} more active tasks</span>`:""}</td><td><b>${p.id}</b></td><td>${p.desc}</td><td><span class="pill">${p.story||"Unassigned"}</span></td><td><span class="pill">${p.release||"Unassigned"}</span></td><td>${p.status}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${p.progress}%"></div></div>${p.progress}%</div></td></tr>`;
+      const extraRows=g.tasks.slice(1).map(t=>`<tr class="teamExtra-${gi}" style="display:none"><td></td><td><b>${t.id}</b></td><td>${t.desc}</td><td><span class="pill">${t.story||"Unassigned"}</span></td><td><span class="pill">${t.release||"Unassigned"}</span></td><td>${t.status}</td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${t.progress}%"></div></div>${t.progress}%</div></td></tr>`).join("");
+      return firstRow+extraRows;
+    }).join("");
+    cards.innerHTML=groups.map((g,gi)=>{
+      const p=g.tasks[0], extra=g.tasks.length-1;
+      const firstCard=`<div class="mobileItem"><div class="mobileItemTop"><b>${g.owner}</b>${extra?`<span class="pill moreTasks" style="cursor:pointer" onclick="toggleTeamWork(${gi})" id="teamToggleCard-${gi}">+${extra} more active tasks</span>`:""}</div><div style="margin-top:4px"><b>${p.id}</b> - ${p.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${p.story||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div><div><small>Status</small><b>${p.status}</b></div><div><small>Progress</small><b>${p.progress}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${p.progress}%"></div></div></div>`;
+      const extraCards=g.tasks.slice(1).map(t=>`<div class="mobileItem teamExtra-${gi}" style="display:none"><div class="mobileItemTop"><b>${g.owner}</b></div><div style="margin-top:4px"><b>${t.id}</b> - ${t.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${t.story||"Unassigned"}</b></div><div><small>Version</small><b>${t.release||"Unassigned"}</b></div><div><small>Status</small><b>${t.status}</b></div><div><small>Progress</small><b>${t.progress}%</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${t.progress}%"></div></div></div>`).join("");
+      return firstCard+extraCards;
+    }).join("");
+  }
+  const blocked=data.pbis.filter(p=>p.status==="Blocked");
+  if(!blocked.length){blockedEl.innerHTML="";return;}
+  blockedEl.innerHTML=`<div class="teamBlockHead">Blocked - Needs Attention</div>`+blocked.map(p=>`<div class="mobileItem blockedItem"><div class="mobileItemTop"><b>${(p.owner&&p.owner.trim())||"Unassigned"}</b><span class="pill bad">Blocked</span></div><div style="margin-top:4px"><b>${p.id}</b> - ${p.desc}</div><div class="mobileGrid"><div><small>Story</small><b>${p.story||"Unassigned"}</b></div><div><small>Version</small><b>${p.release||"Unassigned"}</b></div></div>${p.notes?`<div class="sub" style="margin-top:6px">${p.notes}</div>`:""}</div>`).join("");
+}
+function toggleTeamWork(gi){
+  const g=teamCurrentWorkData()[gi];if(!g)return;
+  const extra=g.tasks.length-1;
+  const rows=document.querySelectorAll(".teamExtra-"+gi);
+  const showing=rows.length&&rows[0].style.display!=="none";
+  rows.forEach(r=>r.style.display=showing?"none":"");
+  const label=showing?`+${extra} more active tasks`:"Show less";
+  const tRow=document.getElementById("teamToggle-"+gi), tCard=document.getElementById("teamToggleCard-"+gi);
+  if(tRow)tRow.textContent=label;
+  if(tCard)tCard.textContent=label;
+}
+function traceabilityData(){
+  const prioRank={High:0,Medium:1,Low:2};
+  const vmap={};
+  data.pbis.forEach(p=>{
+    const v=(p.release&&p.release.trim())||"Unassigned";
+    const f=(p.story&&p.story.trim())||"Unassigned";
+    vmap[v]??={version:v,fmap:{}};
+    vmap[v].fmap[f]??={story:f,tasks:[]};
+    vmap[v].fmap[f].tasks.push(p);
+  });
+  return Object.values(vmap).map(v=>{
+    const stories=Object.values(v.fmap).map(f=>{
+      const total=f.tasks.length, done=f.tasks.filter(p=>p.status==="Completed").length, blocked=f.tasks.some(p=>p.status==="Blocked");
+      const started=f.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+      let status="Not Started";
+      if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+      f.tasks.sort((a,b)=>(prioRank[a.priority]??9)-(prioRank[b.priority]??9)||b.progress-a.progress);
+      return {story:f.story,total,done,pct:total?Math.round(done/total*100):0,status,tasks:f.tasks};
+    }).sort((a,b)=>a.story==="Unassigned"?1:b.story==="Unassigned"?-1:a.story.localeCompare(b.story));
+    const total=stories.reduce((a,f)=>a+f.total,0), done=stories.reduce((a,f)=>a+f.done,0);
+    return {version:v.version,total,done,pct:total?Math.round(done/total*100):0,stories};
+  }).sort((a,b)=>a.version==="Unassigned"?1:b.version==="Unassigned"?-1:a.version.localeCompare(b.version,undefined,{numeric:true}));
+}
+function renderTraceability(){
+  const el=document.getElementById("traceView");if(!el)return;
+  const versions=traceabilityData();
+  if(!versions.length){el.innerHTML="<div class='emptyState'>No tasks yet. Add PBIs with a Sprint Story and Version on the PBI tab to see the traceability tree.</div>";return;}
+  const cls=s=>s==="Completed"?"good":s==="Blocked"?"bad":(s==="In Progress"||s==="Review")?"warn":"";
+  const sp=sprintNumber();
+  el.innerHTML=versions.map((v,vi)=>`<details class="traceVersion" ${vi===0?"open":""}>
+<summary><span class="traceLabel">Sprint #</span><b>${sp}</b><span class="traceLabel">Version</span><b>${v.version}</b><span class="pill">${v.done}/${v.total} tasks done</span><span class="pill ${v.total&&v.done===v.total?"good":""}">${v.pct}%</span></summary>
+<div class="traceBody">${v.stories.map(f=>`<details class="traceStory">
+<summary><span class="traceLabel">Story</span><b>${f.story}</b><span class="pill ${cls(f.status)}">${f.status}</span><span class="pill">${f.done}/${f.total} PBIs done</span><span class="pill">${f.pct}%</span></summary>
+<div class="traceBody">${f.tasks.map(p=>`<div class="traceTask"><div class="traceTaskTop"><span><span class="traceLabel">PBI/Task</span> <b>${p.id}</b>${p.task?` - ${p.task}`:""}</span><span class="pill ${cls(p.status)}">${p.status}</span></div><div class="sub">${p.desc}${p.owner?` · ${p.owner}`:""}</div>${p.goal?`<div class="sub"><small>Goal:</small> ${p.goal}</div>`:""}<div class="progress"><div class="bar" style="width:${p.progress}%"></div></div><div class="sub">Progress ${p.progress}% · Effort ${p.effort||0}%${bigSp(p.sp)?` · <span style="color:var(--amber)">Consider breaking this work item into smaller tasks</span>`:""}</div></div>`).join("")}</div>
+</details>`).join("")}</div>
+</details>`).join("");
+}
+function renderTaskSnapshot(){
+  const rows=data.pbis.slice().sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority]??9)-({High:0,Medium:1,Low:2}[b.priority]??9));
+  taskSnapshot.innerHTML=rows.map(p=>`<tr><td><b>${p.id}</b></td><td>${p.desc}</td><td>${p.task||"-"}</td><td>${p.owner}</td><td>${p.productDoc||"-"}</td><td>${p.sandboxDoc||"-"}</td><td>${p.sp}</td><td>${p.effort||0}%</td><td>${p.status}</td><td>${p.progress}%</td></tr>`).join("")||`<tr><td colspan="10">No tasks yet.</td></tr>`;
+  taskSnapshotCards.innerHTML=rows.map(p=>`<div class="mobileItem"><div class="mobileItemTop"><b>${p.id}</b><span class="pill">${p.status}</span></div><div style="margin-top:4px">${p.desc}</div><div class="mobileGrid"><div><small>Owner</small><b>${p.owner}</b></div><div><small>Progress</small><b>${p.progress}%</b></div><div><small>Product Doc</small><b>${p.productDoc||"-"}</b></div><div><small>Sandbox Doc</small><b>${p.sandboxDoc||"-"}</b></div></div></div>`).join("")||"<div class='notice'>No tasks yet.</div>";
+}
+function renderTeamFocus(){const el=document.getElementById("teamFocus");if(!el)return;const owners={};data.pbis.filter(p=>p.status!=="Completed").forEach(p=>{owners[p.owner]??=[];owners[p.owner].push(p)});const names=Object.keys(owners);el.innerHTML=names.length?names.map(n=>{const ps=owners[n];const active=ps.find(p=>p.status==="In Progress"||p.status==="Review")||ps[0];const conf=active.confidence||"High";return `<div class="planItem" style="margin:7px 0"><b>${n}</b><div class="sub">${active.id} · ${active.desc}</div><div class="workMeta"><span class="pill">${active.status}</span><span class="pill">${active.progress}%</span><span class="confidence ${conf.toLowerCase()}">${conf} confidence</span></div></div>`}).join(""):"<div class='emptyState'>No active team assignments yet.</div>"}
+function storySummary(){
+ const map={};
+ data.pbis.forEach(p=>{const f=(p.story&&p.story.trim())?p.story.trim():"Unassigned";map[f]??={story:f,tasks:[]};map[f].tasks.push(p)});
+ return Object.values(map).map(m=>{
+  const total=m.tasks.length, done=m.tasks.filter(p=>p.status==="Completed").length, blocked=m.tasks.some(p=>p.status==="Blocked"), started=m.tasks.some(p=>p.status!=="Not Started"||p.progress>0);
+  let status="Not Started";
+  if(total&&done===total)status="Completed";else if(blocked)status="Blocked";else if(started)status="In Progress";
+  return {story:m.story,total,done,remaining:total-done,pct:total?Math.round(done/total*100):0,status};
+ }).sort((a,b)=>a.story==="Unassigned"?1:b.story==="Unassigned"?-1:a.story.localeCompare(b.story));
+}
+function clearSpForm(){editSpId.value="";spActivity.value="";spStory.value="";spWeek.value="";spStatus.value="Planned";spActual.value=0;spCarry.value="No";spNotes.value=""}
+function renderSpStoryOptions(){
+ const set=new Set();
+ data.pbis.forEach(p=>{if(p.story)set.add(p.story);if(p.id)set.add(p.id)});
+ const el=document.getElementById("spStoryOptions");if(el)el.innerHTML=[...set].map(v=>`<option>${v}</option>`).join("");
+}
+function planCls(s){return s==="Completed"?"good":s==="Blocked"?"bad":s==="In Progress"?"warn":""}
+function renderSprintPlan(){
+ renderSpStoryOptions();
+ const rows=data.sprintPlan;
+ const planned=rows.length,inProgress=rows.filter(r=>r.status==="In Progress").length,completed=rows.filter(r=>r.status==="Completed").length,carried=rows.filter(r=>r.carry==="Yes").length;
+ const sp=document.getElementById("spSummary");if(sp)sp.innerHTML=`<div class="metric"><span class="label">Planned</span><b>${planned}</b></div><div class="metric"><span class="label">In Progress</span><b>${inProgress}</b></div><div class="metric"><span class="label">Completed</span><b>${completed}</b></div><div class="metric"><span class="label">Carried Forward</span><b>${carried}</b></div>`;
+ const table=document.getElementById("sprintPlanTable");
+ if(table)table.innerHTML=rows.map((r,i)=>`<tr><td><b>${r.activity}</b></td><td>${r.story?`<span class="pill">${r.story}</span>`:"-"}</td><td>${r.week||"-"}</td><td><span class="pill ${planCls(r.status)}">${r.status}</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="progress"><div class="bar" style="width:${r.actual||0}%"></div></div>${r.actual||0}%</div></td><td><span class="pill ${r.carry==="Yes"?"warn":""}">${r.carry||"No"}</span></td><td>${r.notes||"-"}</td><td><button class="btn secondary" onclick="editSprintPlan(${i})">Edit</button> <button class="btn danger" onclick="deleteSprintPlan(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="8">No plan items yet.</td></tr>`;
+ const cards=document.getElementById("sprintPlanCards");
+ if(cards)cards.innerHTML=rows.map((r,i)=>`<div class="mobileItem"><div class="mobileItemTop"><b>${r.activity}</b><span class="pill ${planCls(r.status)}">${r.status}</span></div><div class="sub">${r.story||"No linked story/PBI"} · ${r.week||"No week set"}</div><div class="mobileGrid"><div><small>Progress</small><b>${r.actual||0}%</b></div><div><small>Carry Forward</small><b>${r.carry||"No"}</b></div></div><div class="progress" style="margin-top:8px"><div class="bar" style="width:${r.actual||0}%"></div></div><div class="sub" style="margin-top:6px">${r.notes||"No notes"}</div><div class="actions"><button class="btn secondary" onclick="editSprintPlan(${i})">Edit</button><button class="btn danger" onclick="deleteSprintPlan(${i})">Delete</button></div></div>`).join("")||"<div class='emptyState'>No sprint plan items yet. Add one above.</div>";
+}
+function editSprintPlan(i){const p=data.sprintPlan[i];editSpId.value=i;spActivity.value=p.activity||"";spStory.value=p.story||"";spWeek.value=p.week||"";spStatus.value=p.status||"Planned";spActual.value=p.actual||0;spCarry.value=p.carry||"No";spNotes.value=p.notes||"";window.scrollTo({top:0,behavior:"smooth"})}
+function deleteSprintPlan(i){if(confirm("Delete this plan item?")){data.sprintPlan.splice(i,1);save();renderSprintPlan();renderDashboard()}}
+planForm.onsubmit=e=>{e.preventDefault();
+ const item={activity:spActivity.value.trim(),story:spStory.value.trim(),week:spWeek.value.trim(),status:spStatus.value,actual:+spActual.value,carry:spCarry.value,notes:spNotes.value.trim()};
+ const i=editSpId.value!==""?+editSpId.value:-1;
+ if(i>=0)data.sprintPlan[i]=item;else data.sprintPlan.push(item);
+ save();clearSpForm();renderSprintPlan();renderDashboard();
+};
+function printDashboard(){window.print();}
+
+dailyForm.onsubmit=e=>{e.preventDefault();let obj={date:dDate.value,remaining:+dRemaining.value,featuresRemaining:dFeatures.value===""?null:+dFeatures.value,done:+dDone.value,notes:dNotes.value},i=data.daily.findIndex(x=>x.date===obj.date);if(i>=0)data.daily[i]=obj;else data.daily.push(obj);data.daily.sort((a,b)=>a.date.localeCompare(b.date));save();renderDaily();renderDashboard();dNotes.value="";dFeatures.value=""};
+function dailyHtml(x,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${fmtDate(x.date)}</b><span class="pill">${x.remaining} SP remaining</span></div><div class="mobileGrid"><div><small>Features Left</small><b>${x.featuresRemaining??"-"}</b></div><div><small>PBIs Completed</small><b>${x.done}</b></div><div><small>Notes</small><b>${x.notes||"-"}</b></div></div><div class="actions"><button class="btn danger" onclick="deleteDaily(${i})">Delete</button></div></div>`}
+function renderDaily(){dailyTable.innerHTML=data.daily.map((x,i)=>`<tr><td>${fmtDate(x.date)}</td><td>${x.remaining} SP</td><td>${x.featuresRemaining??"-"}</td><td>${x.done}</td><td>${x.notes||"-"}</td><td><button class="btn danger" onclick="deleteDaily(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="6">No updates yet.</td></tr>`;dailyCards.innerHTML=data.daily.map(dailyHtml).join("")||"<div class='notice'>No daily updates yet.</div>"}
+function deleteDaily(i){data.daily.splice(i,1);save();renderDaily();renderDashboard()}
+
+
+historyForm.onsubmit=e=>{e.preventDefault();data.history.push({name:hName.value.trim(),commit:+hCommit.value,done:+hDone.value,pbis:+hPbis.value,featuresCompleted:+(hFeaturesCompleted.value||0),featuresRemaining:+(hFeaturesRemaining.value||0)});save();historyForm.reset();renderHistory();renderDashboard()};
+function historyHtml(x,i){return `<div class="mobileItem"><div class="mobileItemTop"><b>${x.name}</b><span class="pill">${x.done}/${x.commit} SP</span></div><div class="mobileGrid"><div><small>Achievement</small><b>${x.commit?Math.round(x.done/x.commit*100):0}%</b></div><div><small>PBIs</small><b>${x.pbis}</b></div><div><small>Features Done</small><b>${x.featuresCompleted||0}</b></div><div><small>Features Left</small><b>${x.featuresRemaining||0}</b></div></div><div class="actions"><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></div></div>`}
+function renderHistory(){historyTable.innerHTML=data.history.map((x,i)=>`<tr><td>${x.name}</td><td>${x.commit} SP</td><td>${x.done} SP</td><td>${x.commit?Math.round(x.done/x.commit*100):0}%</td><td>${x.pbis}</td><td>${x.featuresCompleted||0}</td><td>${x.featuresRemaining||0}</td><td><button class="btn danger" onclick="deleteHistory(${i})">Delete</button></td></tr>`).join("")||`<tr><td colspan="8">No history yet.</td></tr>`;historyCards.innerHTML=data.history.map(historyHtml).join("")||"<div class='notice'>No historical sprints yet.</div>"}
+function deleteHistory(i){data.history.splice(i,1);save();renderHistory();renderDashboard()}
+function clearHistory(){if(confirm("Delete all history?")){data.history=[];save();renderHistory();renderDashboard()}}
+
+function downloadBlob(name,text,type){let a=document.createElement("a"),blob=new Blob([text],{type}),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function dataWithDMYDates(){
+ const clone=JSON.parse(JSON.stringify(data));
+ clone.sprint.start=toDMY(clone.sprint.start);clone.sprint.end=toDMY(clone.sprint.end);
+ clone.pbis.forEach(p=>{p.due=toDMY(p.due)});
+ clone.daily.forEach(x=>{x.date=toDMY(x.date)});
+ clone.releases.forEach(r=>{r.date=toDMY(r.date)});
+ return clone;
+}
+function exportData(){downloadBlob("agile_dashboard_data.json",JSON.stringify(dataWithDMYDates(),null,2),"application/json")}
+
+/* ---- XLSX / CSV support (SheetJS) ---- */
+const SHEET_DEFS={
+ Sprint:{cols:["name","start","end","members","goal"],labels:["Sprint / Name","Start Date","End Date","Members","Goal"],single:true},
+ PBIs:{cols:["id","desc","task","goal","owner","sp","status","priority","progress","due","story","release","effort","confidence","productDoc","sandboxDoc","notes"],labels:["Task / PBI","Description","Task","Goal / Purpose","Owner","Story Points","Status","Priority","Progress %","Due Date","Sprint Story","Release","Effort %","Confidence","Product Document","Sandbox Document","Notes"]},
+ Daily:{cols:["date","remaining","featuresRemaining","done","notes"],labels:["Date","Remaining SP","Features Remaining","PBIs Completed","Notes"]},
+ History:{cols:["name","commit","done","pbis","featuresCompleted","featuresRemaining"],labels:["Sprint","Committed SP","Completed SP","PBIs Completed","Features Completed","Features Remaining"]},
+ Releases:{cols:["version","date","total","done"],labels:["Version","Date","Total","Completed"]},
+ SprintPlan:{cols:["activity","story","week","status","actual","carry","notes"],labels:["Activity","Sprint Story","Week","Status","Actual %","Carry Over","Notes"]}
+};
+function buildWorkbook(){
+ const wb=XLSX.utils.book_new();
+ const dmy=dataWithDMYDates();
+ for(const key of Object.keys(SHEET_DEFS)){
+  const def=SHEET_DEFS[key];
+  const section=key==="Sprint"?"Sprint":key==="PBIs"?"pbis":key==="Daily"?"daily":key==="History"?"history":key==="Releases"?"releases":"sprintPlan";
+  const rows=def.single?[dmy.sprint||{}]:(dmy[section]||[]);
+  const aoa=[def.labels,...rows.map(r=>def.cols.map(c=>r[c]??""))];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  XLSX.utils.book_append_sheet(wb,ws,key);
+ }
+ return wb;
+}
+function exportXlsx(){XLSX.writeFile(buildWorkbook(),"agile_dashboard_data.xlsx")}
+function rowsFromSheet(ws,def){
+ const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+ if(!aoa.length)return[];
+ const header=aoa[0].map(h=>String(h||"").trim());
+ const idx=def.labels.map(l=>header.indexOf(l));
+ return aoa.slice(1).filter(r=>r.some(v=>String(v).trim()!=="")).map(r=>{
+  const o={};def.cols.forEach((c,i)=>{const pos=idx[i];o[c]=pos>=0?(r[pos]??""):""});return o;
+ });
+}
+function dataFromWorkbook(wb){
+ const out={sprint:{},pbis:[],daily:[],history:[],releases:[],sprintPlan:[]};
+ for(const key of Object.keys(SHEET_DEFS)){
+  const ws=wb.Sheets[key];if(!ws)continue;
+  const def=SHEET_DEFS[key];
+  const rows=rowsFromSheet(ws,def);
+  if(key==="Sprint"){if(rows[0])out.sprint=rows[0]}
+  else if(key==="PBIs")out.pbis=rows;
+  else if(key==="Daily")out.daily=rows;
+  else if(key==="History")out.history=rows;
+  else if(key==="Releases")out.releases=rows;
+  else if(key==="SprintPlan")out.sprintPlan=rows;
+ }
+ return out;
+}
+function detectCsvTable(header){
+ for(const key of Object.keys(SHEET_DEFS)){
+  const def=SHEET_DEFS[key];
+  if(def.labels.every(l=>header.includes(l)))return key;
+ }
+ return null;
+}
+function mergeCsvRows(key,rows){
+ const def=SHEET_DEFS[key];
+ if(key==="Sprint"){if(rows[0])Object.assign(data.sprint,rows[0]);return}
+ const section=key==="PBIs"?"pbis":key==="Daily"?"daily":key==="History"?"history":key==="Releases"?"releases":"sprintPlan";
+ const keyField=key==="PBIs"?"id":key==="Daily"?"date":key==="History"?"name":key==="SprintPlan"?"activity":null;
+ if(!Array.isArray(data[section]))data[section]=[];
+ rows.forEach(row=>{
+  if(keyField&&row[keyField]){
+   const i=data[section].findIndex(x=>x[keyField]===row[keyField]);
+   if(i>=0){data[section][i]=row;return}
+  }
+  data[section].push(row);
+ });
+}
+function importFileGeneric(file){
+ const name=file.name.toLowerCase();
+ if(name.endsWith(".json")){
+  const r=new FileReader();
+  r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.sprint||!Array.isArray(x.pbis))throw Error();data=x;normalizeData();save();renderAll();alert("Data imported successfully.");}catch(err){alert("Invalid dashboard backup file.")}};
+  r.readAsText(file);
+ }else if(name.endsWith(".xlsx")){
+  const r=new FileReader();
+  r.onload=()=>{try{const wb=XLSX.read(r.result,{type:"array"});const x=dataFromWorkbook(wb);if(!x.sprint||!Array.isArray(x.pbis))throw Error();data=x;normalizeData();save();renderAll();alert("Data imported from Excel workbook.");}catch(err){alert("Could not read that Excel file. Expecting sheets: "+Object.keys(SHEET_DEFS).join(", "))}};
+  r.readAsArrayBuffer(file);
+ }else if(name.endsWith(".csv")){
+  const r=new FileReader();
+  r.onload=()=>{try{
+   const wb=XLSX.read(r.result,{type:"string"});
+   const ws=wb.Sheets[wb.SheetNames[0]];
+   const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+   const header=(aoa[0]||[]).map(h=>String(h||"").trim());
+   const key=detectCsvTable(header);
+   if(!key)throw Error("no-match");
+   const rows=rowsFromSheet(ws,SHEET_DEFS[key]);
+   mergeCsvRows(key,rows);
+   normalizeData();save();renderAll();
+   alert(`Imported ${rows.length} row(s) into ${key}.`);
+  }catch(err){alert("CSV headers didn't match any known table (Sprint, PBIs/Tasks, Daily, History/Velocity, Releases, SprintPlan).")}};
+  r.readAsText(file);
+ }else{
+  alert("Unsupported file type. Use .json, .xlsx, or .csv.");
+ }
+}
+importFile.onchange=e=>{let f=e.target.files[0];if(!f)return;importFileGeneric(f);e.target.value=""}
+function csv(rows){return rows.map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n")}
+function exportPbisCsv(){const rows=data.pbis.map(p=>({...p,due:toDMY(p.due)}));downloadBlob("pbis.csv",csv([SHEET_DEFS.PBIs.labels,...rows.map(p=>SHEET_DEFS.PBIs.cols.map(c=>p[c]??""))]),"text/csv")}
+function exportHistoryCsv(){downloadBlob("velocity-history.csv",csv([SHEET_DEFS.History.labels,...data.history.map(x=>SHEET_DEFS.History.cols.map(c=>x[c]??""))]),"text/csv")}
+function exportDailyCsv(){const rows=data.daily.map(x=>({...x,date:toDMY(x.date)}));downloadBlob("daily.csv",csv([SHEET_DEFS.Daily.labels,...rows.map(x=>SHEET_DEFS.Daily.cols.map(c=>x[c]??""))]),"text/csv")}
+function exportSprintPlanCsv(){downloadBlob("sprintplan.csv",csv([SHEET_DEFS.SprintPlan.labels,...data.sprintPlan.map(x=>SHEET_DEFS.SprintPlan.cols.map(c=>x[c]??""))]),"text/csv")}
+function resetAll(){if(confirm("This will permanently delete all dashboard data on this browser. Continue?")){data=empty();save();renderAll();alert("Dashboard reset.")}}
+function loadDemo(){data={sprint:{name:"Sprint 24",start:"2026-08-03",end:"2026-08-14",members:11,hours:8,holiday:0,pto:32,other:56,goal:"Deliver the highest-priority product increments predictably."},pbis:[
+{id:"PBI-1042",desc:"Authentication API",owner:"A. Patel",sp:8,status:"Completed",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1047",desc:"Dashboard UI",owner:"J. Kim",sp:5,status:"Completed",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1051",desc:"Reporting service",owner:"M. Chen",sp:13,status:"In Progress",priority:"High",progress:65,productDoc:"PRD-1051",sandboxDoc:"SBX-1051"},{id:"PBI-1054",desc:"Data export",owner:"R. Singh",sp:8,status:"In Progress",priority:"Medium",progress:45,productDoc:"PRD-1054",sandboxDoc:"SBX-1054"},{id:"PBI-1058",desc:"Search enhancement",owner:"L. Garcia",sp:3,status:"In Progress",priority:"Medium",progress:70,productDoc:"PRD-1058",sandboxDoc:"SBX-1058"},{id:"PBI-1061",desc:"QA automation",owner:"S. Brown",sp:5,status:"Review",priority:"Medium",progress:85,productDoc:"PRD-1061",sandboxDoc:"SBX-1061"},{id:"PBI-1064",desc:"External integration",owner:"K. Wilson",sp:8,status:"Blocked",priority:"High",progress:30,productDoc:"PRD-1064",sandboxDoc:"SBX-1064",notes:"Dependency pending"},{id:"PBI-1068",desc:"Performance tuning",owner:"D. Nguyen",sp:3,status:"In Progress",priority:"Low",progress:55,productDoc:"PRD-1068",sandboxDoc:"SBX-1068"},{id:"PBI-1070",desc:"Audit logging",owner:"T. Davis",sp:5,status:"Completed",priority:"High",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"},{id:"PBI-1073",desc:"UI accessibility",owner:"N. Shah",sp:3,status:"Completed",priority:"Medium",progress:100,productDoc:"PRD-1042",sandboxDoc:"SBX-1042"}],daily:[{date:"2026-08-03",remaining:61},{date:"2026-08-04",remaining:56},{date:"2026-08-05",remaining:50},{date:"2026-08-06",remaining:43},{date:"2026-08-07",remaining:38}],history:[{name:"Sprint 19",commit:60,done:51,pbis:18,featuresCompleted:6,featuresRemaining:34},{name:"Sprint 20",commit:62,done:58,pbis:21,featuresCompleted:7,featuresRemaining:27},{name:"Sprint 21",commit:60,done:55,pbis:20,featuresCompleted:6,featuresRemaining:21},{name:"Sprint 22",commit:65,done:62,pbis:24,featuresCompleted:8,featuresRemaining:13},{name:"Sprint 23",commit:58,done:53,pbis:19,featuresCompleted:6,featuresRemaining:7},{name:"Sprint 24",commit:61,done:34,pbis:6,featuresCompleted:0,featuresRemaining:7}],releases:[{version:"V-1.2",date:"2026-07-17",total:42,done:42},{version:"V-1.3",date:"2026-08-14",total:38,done:24}],sprintPlan:[{activity:"Complete reporting and validation activities",story:"Reporting",week:"Week of Aug 3",status:"In Progress",actual:78,carry:"Yes",notes:"Carry forward remaining validation work"},{activity:"Ship authentication API",story:"Authentication",week:"Week of Aug 3",status:"Completed",actual:100,carry:"No",notes:"Delivered ahead of schedule"},{activity:"External integration groundwork",story:"Integration",week:"Week of Aug 3",status:"Blocked",actual:30,carry:"Yes",notes:"Waiting on vendor dependency"}]};const storyMap={"PBI-1042":"Authentication","PBI-1047":"Dashboard","PBI-1070":"Authentication","PBI-1073":"Accessibility","PBI-1051":"Reporting","PBI-1054":"Reporting","PBI-1058":"Search","PBI-1061":"Reporting","PBI-1064":"Integration","PBI-1068":"Dashboard"};data.pbis.forEach(p=>{p.release="V-1.3";p.story=storyMap[p.id]||"";p.effort=p.progress;p.confidence=p.status==="Blocked"?"Low":(p.status==="Completed"?"High":"Medium")});normalizeData();save();renderAll();alert("Demo data loaded.");}
+function renderAll(){renderSprint();renderPbis();renderDaily();renderHistory();renderDashboard()}
+async function fetchJsonSource(){
+ const res=await fetch("../data/agile_dashboard_data.json",{cache:"no-store"});
+ if(!res.ok)throw Error();
+ const json=await res.json();
+ if(!json||!json.sprint||!Array.isArray(json.pbis))throw Error();
+ return json;
+}
+async function fetchXlsxSource(){
+ const res=await fetch("../data/agile_dashboard_data.xlsx",{cache:"no-store"});
+ if(!res.ok)throw Error();
+ const buf=await res.arrayBuffer();
+ const wb=XLSX.read(buf,{type:"array"});
+ const x=dataFromWorkbook(wb);
+ if(!x||!x.sprint||!Array.isArray(x.pbis))throw Error();
+ return x;
+}
+async function loadInitial(){
+ try{data=await fetchXlsxSource();dataSource="xlsx";normalizeData();save();return;}catch(e){}
+ try{data=await fetchJsonSource();dataSource="json";normalizeData();save();return;}catch(e){}
+ data=JSON.parse(localStorage.getItem(KEY)||"null")||empty();dataSource="local";normalizeData();
+}
+function reloadFromSource(){
+ fetchXlsxSource().then(x=>{data=x;dataSource="xlsx";normalizeData();save();renderAll();alert("Reloaded from agile_dashboard_data.xlsx.");}).catch(()=>{
+  fetchJsonSource().then(json=>{data=json;dataSource="json";normalizeData();save();renderAll();alert("Reloaded from agile_dashboard_data.json.");}).catch(()=>{
+   alert("No agile_dashboard_data.xlsx or .json found in ../data, or it's invalid.");
+  });
+ });
+}
+buildNav();loadInitial().then(()=>{renderAll();saveState.textContent=dataSource==="xlsx"?"● Loaded from agile_dashboard_data.xlsx":dataSource==="json"?"● Loaded from agile_dashboard_data.json":"● Saved locally";});
+</script>
+</body>
+</html>
